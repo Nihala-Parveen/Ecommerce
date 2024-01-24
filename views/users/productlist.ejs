@@ -1,0 +1,38 @@
+<%- include('../layouts/header.ejs') %>
+<section class="p-4">
+    <div class="container">
+        <div class="row">
+            <% products.forEach((product) => { %>
+                <a href="/productdetails?id=<%= product._id %>">
+            <div class="col-md-3 p-3">
+                <div class="card" style="width: 15rem; height: 27rem;">
+                    <img src="/uploads/<%= product.images[0] %>" alt="catimg" height="300px" width="250px" class="card-img-top zoomable-image">
+                    <div class="card-body">
+                        <h5><%= product.name %></h5>
+                        <p><span>$<%= product.price %></span></p>
+                        <!-- <a href="/addtocart" class="genric-btn success-border">Add to Cart</a> -->
+                        <form action="/addtocart" method="POST">
+                            <input type="hidden" name="productId" value="<%= product._id %>">
+                            <button type="submit" class="genric-btn success-border">Add to Cart</button>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </a>
+        <% }) %>
+        </div>
+        <div class="d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                <% for(let j = 1 ; j <= totalPages ; j++ ) { %>
+                    <li class="page-item mx-3 <%= j === currentPage ? 'active' : '' %>"><a class="page-link" href="?page=<%= j %>"><%= j %></a></li>
+                <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+    
+
+<%- include('../layouts/footer.ejs') %>

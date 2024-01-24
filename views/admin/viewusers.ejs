@@ -1,0 +1,54 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="tables">
+            <div class="table-responsive bs-example widget-shadow">
+                <h4 style="float: left; margin-right: 850px;">Users</h4>
+                <form>
+                    <input type="text" name="search" placeholder="Search users">
+                    <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+                <table class="table table-bordered"> 
+                    <thead> 
+                        <tr>  
+                            <th>User Id</th>
+                            <th>Name</th> 
+                            <th>Email</th> 
+                            <th>Mobile No</th> 
+                            <th>Actions</th>
+                        </tr> 
+                    </thead> 
+                    <tbody>
+                        <% users.forEach((user,index) => { %> 
+                        <tr> 
+                            <td><%= user.id %></td> 
+                            <td><%= user.name %></td> 
+                            <td><%= user.email %></td>
+                            <td><%= user.mobile %></td>
+                            <td>
+                                <form action="/toggleuserblock?id=<%= user._id %>" method="POST">
+                                    <% if(user.isBlocked) { %>
+                                        <button type = "submit" class = "btn btn-success">Unblock</button>
+                                    <% } else { %>
+                                        <button type = "submit" class = "btn btn-danger">Block</button>
+                                    <% } %>
+                                </form>
+                            </td> 
+                        </tr> 
+                        <% }) %>
+                    </tbody> 
+                </table> 
+					<div class="col-md-6">
+						<ul class="pagination pagination-sm">
+                            <% for(let j = 1 ; j <= totalPages ; j++ ){ %>
+							<li class="<%= j === currentPage ? 'active' : '' %>"><a href="?page=<%= j %>"><%= j %></a></li>
+                            <% } %>
+						</ul>
+					</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/adminFooter.ejs') %>

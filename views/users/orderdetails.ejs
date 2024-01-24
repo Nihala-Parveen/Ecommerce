@@ -1,0 +1,97 @@
+<%- include('../layouts/header.ejs') %>
+ <div class="container">  
+    <nav aria-label="breadcrumb" style="background-color: white;">
+        <ol class="breadcrumb mt-3">
+            <li class="breadcrumb-item"><a href="/home">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">My orders</li>
+        </ol>
+    </nav>
+    <table class="table mt-5">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Product Name</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Total amount</th>
+            <th scope="col">Status</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% orders.forEach ( (order,index) => { %> 
+            <% order.products.forEach((product,productIndex) => { %>
+                <tr>
+                    <% if(productIndex === 0) { %>
+                        <th scope="row" rowspan="<%= order.products.length %>"><%= index+1 %></th>
+                    <% } %>
+                    <td><a href="/vieworder?id=<%= order._id %>" class="text-dark"><%= product.productId.name %></a></td>
+                    <td><%= product.quantity %></td>
+                    <% if(productIndex === 0) { %>
+                        <td rowspan="<%= order.products.length %>"><%= order.amount %></td>
+                        <td rowspan="<%= order.products.length %>"><%= order.status %></td>
+                        <% if (!(order.status === "Delivered" || order.status === "Cancelled")) { %>
+                            <td class="text-danger">
+                                <a href="#" onclick="showCancelConfirmationModal('<%= order._id %>')" class="text-danger">Cancel Order</a>
+                            </td>
+                        <% } %>
+                    <% } %>
+                </tr>
+            <% }) %>
+        <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<!-- Confirmation Modal for Order Cancellation -->
+<div class="modal fade" id="cancelConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="cancelConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelConfirmationModalLabel">Confirm Order Cancellation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to cancel this order?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="genric-btn success-border" data-dismiss="modal">Cancel</button>
+                <button type="button" class="genric-btn danger-border" id="cancelConfirmBtn">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showCancelConfirmationModal(orderId) {
+    
+    $('#cancelConfirmationModal').modal('show');
+
+    document.getElementById('cancelConfirmBtn').onclick = async function () {
+        try {
+            const response = await fetch('/cancelOrder?id=' + orderId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            window.location.href = '/orders';
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+}
+
+</script>
+
+
+<%- include('../layouts/footer.ejs') %>
+

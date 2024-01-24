@@ -1,0 +1,206 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>User</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="manifest" href="site.webmanifest">
+		<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+		<!-- CSS here -->
+            <link rel="stylesheet" href="/css/bootstrap.min.css">
+            <link rel="stylesheet" href="/css/owl.carousel.min.css">
+            <link rel="stylesheet" href="/css/flaticon.css">
+            <link rel="stylesheet" href="/css/slicknav.css">
+            <link rel="stylesheet" href="/css/animate.min.css">
+            <link rel="stylesheet" href="/css/magnific-popup.css">
+            <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+            <link rel="stylesheet" href="/css/themify-icons.css">
+            <link rel="stylesheet" href="/css/slick.css">
+            <link rel="stylesheet" href="/css/nice-select.css">
+            <link rel="stylesheet" href="/css/style.css">
+            <link rel="stylesheet" href="/css/prodet.css">
+   </head>
+
+   <body>
+       
+    <!-- Preloader Start -->
+    <div id="preloader-active">
+        <div class="preloader d-flex align-items-center justify-content-center">
+            <div class="preloader-inner position-relative">
+                <div class="preloader-circle"></div>
+                <div class="preloader-img pere-text">
+                    <img src="assets/img/logo/logo.png" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Preloader Start -->
+
+    <header>
+        <!-- Header Start -->
+       <div class="header-area">
+            <div class="main-header ">
+                
+               <div class="header-bottom  header-sticky">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <!-- Logo -->
+                            <div class="col-xl-1 col-lg-1 col-md-1 col-sm-3">
+                                <div class="logo">
+                                  <a href="/home"></a>
+                                    <p class="h2 font-weight-bold ms-5">ShopEasy</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-8 col-md-7 col-sm-5">
+                                <!-- Main-menu -->
+                                <div class="main-menu f-right d-none d-lg-block">
+                                    <nav>                                                
+                                        <ul id="navigation">                                                                                                                                     
+                                            <li><a href="/productlist">Home</a></li>
+                                            <li><a href="/category">Category</a></li>
+                                            <!-- <li class="hot"><a href="#">Latest</a>
+                                                <ul class="submenu">
+                                                    <li><a href="product_list.html"> Product list</a></li>
+                                                    <li><a href="single-product.html"> Product Details</a></li>
+                                                </ul>
+                                            </li>
+                                            <li><a href="blog.html">Blog</a>
+                                                <ul class="submenu">
+                                                    <li><a href="blog.html">Blog</a></li>
+                                                    <li><a href="single-blog.html">Blog Details</a></li>
+                                                </ul>
+                                            </li> -->
+                                            <li><a href="/about">About</a></li>
+                                            <li><a href="/contactUs">Contact</a></li>
+                                            <li><a href="#">Account</a>
+                                                <ul class="submenu">
+                                                    <li><a href="/profile">My account</a></li>
+                                                    <li><a href="/logout">Logout</a></li>
+                                                </ul></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div> 
+                            <div class="col-xl-5 col-lg-3 col-md-3 col-sm-3 fix-card">
+                                <ul class="header-right f-right d-none d-lg-block d-flex justify-content-between">
+                                    <li class="d-none d-xl-block">
+                                        <div class="form-box f-right ">
+                                            <input type="text" name="Search" placeholder="Search products">
+                                            <div class="search-icon">
+                                                <i class="fas fa-search special-tag"></i>
+                                            </div>
+                                        </div>
+                                     </li>
+                                    <li class=" d-none d-xl-block">
+                                        <div class="favorit-items">
+                                            <a href="product_list.html"><i class="far fa-heart"></i></a>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="shopping-card">
+                                            <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+                                        </div>
+                                    </li>
+                                    
+                                   <!-- <li class="d-none d-lg-block"> <a href="/login" class="text-dark">Account</a></li> -->
+                                </ul>
+                            </div>
+                            <!-- Mobile Menu -->
+                            <div class="col-12">
+                                <div class="mobile_menu d-block d-lg-none"></div>
+                            </div>
+                        </div>
+                    </div>
+               </div>
+            </div>
+       </div>
+        <!-- Header End -->
+    </header>
+<div class="container">
+  <nav aria-label="breadcrumb" style="background-color: white;">
+    <ol class="breadcrumb mt-3">
+        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+        <li class="breadcrumb-item"><a href="/productlist">Products</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Product Details</li>
+    </ol>
+</nav>
+<div class = "card-wrapper">
+    <div class = "card">
+      <!-- card left -->
+      <div class = "product-imgs">
+        <div class = "img-display">
+          <div class = "img-showcase">
+            <img src = "/uploads/<%= products.images[0] %>" alt = "shoe image" height="550px">
+            <img src = "/uploads/<%= products.images[1] %>" alt = "shoe image" height="550px">
+            <img src = "/uploads/<%= products.images[2] %>" alt = "shoe image" height="550px">
+            <img src = "/uploads/<%= products.images[3] %>" alt = "shoe image" height="550px">
+          </div>
+        </div>
+        <div class = "img-select">
+          <div class = "img-item">
+            <a href = "#" data-id = "1">
+              <img src = "/uploads/<%= products.images[0] %>" alt = "shoe image" height="100px">
+            </a>
+          </div>
+          <div class = "img-item">
+            <a href = "#" data-id = "2">
+              <img src = "/uploads/<%= products.images[1] %>" alt = "shoe image" height="100px">
+            </a>
+          </div>
+          <div class = "img-item">
+            <a href = "#" data-id = "3">
+              <img src = "/uploads/<%= products.images[2] %>" alt = "shoe image" height="100px">
+            </a>
+          </div>
+          <div class = "img-item">
+            <a href = "#" data-id = "4">
+              <img src = "/uploads/<%= products.images[3] %>" alt = "shoe image" height="100px">
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- card right -->
+      <div class = "product-content">
+        <h2 class = "product-title"><%= products.name %></h2>
+        <!-- <div class = "product-rating">
+          <i class = "fas fa-star"></i>
+          <i class = "fas fa-star"></i>
+          <i class = "fas fa-star"></i>
+          <i class = "fas fa-star"></i>
+          <i class = "fas fa-star-half-alt"></i>
+          <span>4.7(21)</span>
+        </div>
+   -->
+        <div class = "product-price">
+          
+          <p class = "new-price">Price: <span>$<%= products.price %></span></p>
+        </div>
+  
+        <div class = "product-detail">
+          <h2>about this item: </h2>
+          <p><%= products.description %></p>
+          <h6>Category : <%= products.category.name %></h6>
+          
+        </div>
+  
+        <div class = "purchase-info">
+          <!-- <input type = "number" min = "0" value = "1"> -->
+          <form action="/addtocart" method="POST">
+            <input type="hidden" name="productId" value="<%= products._id %>">
+            <button type = "submit" class = "btn">
+              Add to Cart <i class = "fas fa-shopping-cart"></i>
+            </button>
+          </form>
+          
+        </div>
+  
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer.ejs') %>

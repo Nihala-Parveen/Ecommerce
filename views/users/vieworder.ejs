@@ -1,0 +1,49 @@
+<%- include('../layouts/header.ejs') %>
+<div class="container">
+    <nav aria-label="breadcrumb" style="background-color: white;">
+        <ol class="breadcrumb mt-3">
+            <li class="breadcrumb-item"><a href="/home">Home</a></li>
+            <li class="breadcrumb-item"><a href="/orders">My Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><%= orders._id %></li>
+        </ol>
+    </nav>
+    
+        <div class="rounded shadow-sm p-3" style="border: 1px solid #e1d9d9;">
+            <h4>Delivery Address</h4>
+            <h5><%= orders.user.name %></h5>
+            <p><%= orders.address.buildingName %> , <%= orders.address.city %></p>
+            <p><%= orders.address.district %> , <%= orders.address.ZIPcode %></p>
+            <p>Phone Number : <%= orders.user.mobile %></p>
+            <p><%=  %></p>
+        </div>
+
+        <div class="rounded shadow-sm p-3 mt-4" style="border: 1px solid #e1d9d9;">
+            <h4>Items in this order</h4>
+            <table class="table mt-5">
+                <thead>
+                    <tr>
+                        <th scope="col">Product Image</th>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.products.forEach((product) => { %>
+                        <tr>
+                            <td><img src="/uploads/<%= product.productId.images[0] %>" alt="img1" height="100px" width="100px"></td>
+                            <td><%= product.productId.name %></td>
+                            <td><%= product.quantity %></td>
+                            <td><%= product.price * product.quantity %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            
+            <p>Total Amount: <%= orders.amount %></p>
+            <p>Status: <%= orders.status %></p>
+        </div>
+    
+</div>
+
+<%- include('../layouts/footer.ejs') %>

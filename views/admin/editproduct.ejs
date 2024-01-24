@@ -1,0 +1,158 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="forms"> 
+            <ol class="breadcrumb">
+                <li><a href="/viewproducts">Products</a></li>
+                <li class="active">Edit Product</li>
+            </ol>   
+            <div class=" form-grids row form-grids-right">
+                <div class="widget-shadow " data-example-id="basic-forms"> 
+                    <div class="form-title">
+                        <h4>Edit Product</h4>
+                    </div>
+                    <div class="form-body">
+                        <form class="form-horizontal" action="/editproduct?id=<%= product._id %>" method="POST" enctype="multipart/form-data"> 
+                            <input type="hidden" name="id" value="<%= product._id %>">
+                            <div class="form-group"> 
+                                <label for="productname" class="col-sm-2 control-label">Product Name</label> 
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="productname" value="<%= product.name %>" required>
+                                    <% if (errors && errors.productname) { %>
+                                        <span class="text-danger"><%= errors.productname %></span>
+                                    <% } %></div> 
+                            </div> 
+                            <div class="form-group"> 
+                                <label for="category" class="col-sm-2 control-label">Product Category</label> 
+                                <div class="col-sm-9"> <select name="categoryId" id="" class="form-control">
+                                    <% categories.forEach(category => { %>
+                                        <option value="<%= category._id %>" <%= product.category && product.category._id.toString() === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
+                                    <% }); %>
+                                </select> </div> 
+                            </div> 
+                            <div class="form-group"> 
+                                <label for="des" class="col-sm-2 control-label">Product Description</label> 
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="des" value="<%= product.description %>" required>
+                                    <% if (errors && errors.description) { %>
+                                        <span class="text-danger"><%= errors.description %></span>
+                                    <% } %></div> 
+                            </div> 
+                            <div class="form-group"> 
+                                <label for="price" class="col-sm-2 control-label">Product Price</label> 
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="price" value="<%= product.price %>" required>
+                                    <% if (errors && errors.price) { %>
+                                        <span class="text-danger"><%= errors.price %></span>
+                                    <% } %></div> 
+                            </div>
+                            <div class="form-group"> 
+                                <label for="files" class="col-sm-2 control-label">Product Images</label> 
+                                <div class="col-sm-9"> <img src="/uploads/<%= product.images[0] %>" alt="img1" height="100px" width="100px">
+                                                       <img src="/uploads/<%= product.images[1] %>" alt="img2" height="100px" width="100px">
+                                                       <img src="/uploads/<%= product.images[2] %>" alt="img3" height="100px" width="100px">
+                                                       <img src="/uploads/<%= product.images[3] %>" alt="img4" height="100px" width="100px">
+                                </div> 
+                            </div> 
+                            <div class="form-group"> 
+                                <label for="files" class="col-sm-2 control-label"></label> 
+                                <div class="col-sm-9"> <input type="file" id="browse" class="form-control" name="files" multiple>
+                                <span class="text-danger" id="err"></span>
+                                <div id="preview"></div>
+                                </div> 
+                            </div> 
+                            <div class="col-sm-offset-2"> 
+                                <button type="submit" class="btn btn-default">Update</button> 
+                            </div> 
+                        </form> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .image-container {
+        position: relative;
+        display: inline-block; 
+        margin: 15px; 
+    }
+
+    .image-container img {
+        height: 100px;
+        width: auto; 
+        display: block; 
+    }
+
+    .delete-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        color: red;
+    }
+</style>
+
+<script>
+    function previewFiles() {
+        const preview = document.querySelector("#preview");
+        const filesInput = document.querySelector("input[type=file]");
+        const files = filesInput.files;
+        const addButton = document.querySelector("button[type=submit]");
+
+        function readAndPreview(file) {
+            if (/\.(jpe?g|png)$/i.test(file.name)) {
+                const imageContainer = document.createElement("div");
+                imageContainer.classList.add("image-container");
+
+                const image = new Image();
+                image.title = file.name;
+                image.src = URL.createObjectURL(file);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.classList.add("delete-button");
+                deleteButton.innerHTML = "&#10060;";
+                deleteButton.addEventListener("click", () => {
+                    imageContainer.remove();
+                    validateAndToggleButton();
+                });
+
+                imageContainer.appendChild(image);
+                imageContainer.appendChild(deleteButton);
+                preview.appendChild(imageContainer);
+
+                validateAndToggleButton();
+            } else {
+                const errMsg = document.getElementById("err")
+                errMsg.innerHTML = "Invalid image format. Please upload JPEG or PNG files."
+            }
+        }
+
+        function validateAndToggleButton() {
+            const invalidImages = Array.from(files).some(
+                (file) => !/\.(jpe?g|png)$/i.test(file.name)
+            );
+
+            if (invalidImages) {
+                addButton.setAttribute("disabled", "disabled");
+            } else {
+                addButton.removeAttribute("disabled");
+            }
+        }
+
+        // Clear the preview and validate when new files are selected
+        preview.innerHTML = "";
+        validateAndToggleButton();
+
+        if (files) {
+            Array.prototype.forEach.call(files, readAndPreview);
+        }
+    }
+
+    const picker = document.querySelector("#browse");
+    picker.addEventListener("change", previewFiles);
+</script>
+
+<%- include('../layouts/adminFooter.ejs') %>

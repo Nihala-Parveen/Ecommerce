@@ -1,0 +1,113 @@
+<%- include('../layouts/header.ejs') %>
+
+<section class="checkout_area section_padding">
+    <div class="container">
+      
+      <!-- <div class="cupon_area">
+        <div class="check_title">
+          <h2>
+            Have a coupon?
+            <a href="#">Click here to enter your code</a>
+          </h2>
+        </div>
+        <input type="text" placeholder="Enter coupon code" />
+        <a class="tp_btn" href="#">Apply Coupon</a>
+      </div> -->
+      <div class="billing_details">
+        <div class="row">
+          <div class="col-lg-8">
+            <h3>Billing Details</h3>
+            <form class="row contact_form" action="/confirmorder" method="post">
+              <input type="hidden" name="userId" value="<%= users._id %>">
+              <div class="col-md-6 form-group p_star">
+                <input type="text" class="form-control" id="first" name="name" value="<%= users.name %>" readonly/>                
+              </div>
+              <div class="col-md-6 form-group p_star">
+                <!-- <input type="text" class="form-control" id="last" name="name" />
+                <span class="placeholder" data-placeholder="Last name"></span> -->
+              </div>
+              
+              <div class="col-md-6 form-group p_star">
+                <input type="text" class="form-control" id="number" name="mobile" value="<%= users.mobile %>" readonly/>
+                
+              </div>
+              <div class="col-md-6 form-group p_star">
+                <input type="text" class="form-control" id="email" name="email" value="<%= users.email %>" readonly/>
+              </div>
+              <div class="payment_item active">
+                <% users.address.forEach((address, index) => { %>
+                  <div class="radion_btn">
+                    <input type="radio" id="f-option<%= index %>" name="address" value="<%= JSON.stringify(address) %>" <% if (index === 0) { %>checked<% } %>/>
+                    <label for="f-option<%= index %>"><%= address.buildingName %> , <%= address.city %> , <%= address.district %> , <%= address.ZIPcode %></label>
+                    <div class="check"></div>
+                  </div> 
+                <% }) %>
+                <a href="/addAddress" class="text-primary">+Add new address</a>
+              </div>
+              </div>
+              <div class="col-lg-4">
+              <div class="order_box">
+              <h2>Your Order</h2>
+              <ul class="list">
+                <li>
+                  <a href="#">Product
+                    <span>Total</span>
+                  </a>
+                </li>
+                <% let subtotal = 0 %>
+                <% carts.products.forEach((cart) => { %>
+                    <% const total = cart.price * cart.quantity %>
+                    <% subtotal += total %> 
+                <li>
+                  <a href="#"><%= cart.productId.name %>
+                    <span class="middle">x <%= cart.quantity %></span>
+                    <span class="last">$<%= total %></span>
+                  </a>
+                </li>
+                <% }) %>
+              </ul>
+              <ul class="list list_2">
+                <li>
+                  <a href="#">Subtotal
+                    <span>$<%= subtotal %></span>
+                  </a>
+                </li>
+                <!-- <li>
+                  <a href="#">Shipping
+                    <span>Flat rate: $50.00</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#">Total
+                    <span>$2210.00</span>
+                  </a>
+                </li> -->
+              </ul>
+              <div class="payment_item">
+                <div class="radion_btn">
+                  <input type="radio" id="f-option5" name="payment" value="COD"/>
+                  <label for="f-option5">Cash on Delivery</label>
+                  <div class="check"></div>
+                </div>
+               
+              </div>
+              <div class="payment_item active">
+                <div class="radion_btn">
+                  <input type="radio" id="f-option6" name="payment" value="Paypal" />
+                  <label for="f-option6">Online Payment </label>
+                  <div class="check"></div>
+                </div>
+              </div>
+              
+                <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
+               <input type="hidden" name="amount" value="<%= subtotal %>">
+              <button type="submit" class="genric-btn success-border form-control">Confirm Order</button>
+              </div>
+              </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%- include('../layouts/footer.ejs') %>

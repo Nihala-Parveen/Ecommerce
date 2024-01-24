@@ -1,0 +1,23 @@
+<%- include('../layouts/header.ejs') %>
+    <div class="container">
+        <nav aria-label="breadcrumb" style="background-color: white;">
+            <ol class="breadcrumb mt-3">
+                <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                <li class="breadcrumb-item"><a href="/profile">Profile</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Addresses</li>
+            </ol>
+        </nav>  
+        <a href="/addAddress" class="text-primary">+Add new address</a>
+    <% users.address.forEach ((elem) => { %>
+        <div class="rounded shadow-sm p-3 mb-3" style="border: 1px solid #e1d9d9;">
+            <h5><%= users.name %></h5>
+            <p><%= elem.buildingName %></p>
+            <p><%= elem.city %> , <%= elem.district %></p>
+            <p><%= elem.ZIPcode %></p>
+        </div>
+    <% }) %>
+    </div>
+
+    
+
+<%- include('../layouts/footer.ejs') %>

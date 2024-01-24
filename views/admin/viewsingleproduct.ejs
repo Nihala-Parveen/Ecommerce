@@ -1,0 +1,50 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="forms">  
+            <ol class="breadcrumb">
+                <li><a href="/viewproducts">Products</a></li>
+                <li class="active">View Product</li>
+            </ol>  
+            <div class=" form-grids row form-grids-right">
+                <div class="widget-shadow " data-example-id="basic-forms"> 
+                    <div class="form-title">
+                        <h4>Product Details</h4>
+                    </div>
+                    <div class="form-body">
+                        <form class="form-horizontal" action="/viewsingleproduct?id=<%= products._id %>"> 
+                            <input type="hidden" value="<%= products._id %>">
+                            <div class="form-group"> 
+                                <label for="productname" class="col-sm-2 control-label">Product Name</label> 
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="productname" value="<%= products.name %>" readonly></div> 
+                            </div> 
+                            <div class="form-group"> 
+                                <label for="category" class="col-sm-2 control-label">Product Category</label> 
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="productname" value="<%= products.category ? products.category.name : 'No category' %>" readonly> </div> 
+                            </div> 
+                            <div class="form-group"> 
+                                <label for="des" class="col-sm-2 control-label">Product Description</label> 
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="des" value="<%= products.description %>" readonly></div> 
+                            </div> 
+                            <div class="form-group"> 
+                                <label for="price" class="col-sm-2 control-label">Product Price</label> 
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="price" value="<%= products.price %>" readonly></div> 
+                            </div>
+                            <div class="form-group"> 
+                                <label for="files" class="col-sm-2 control-label">Product Images</label> 
+                                <div class="col-sm-9"> <img src="/uploads/<%= products.images[0] %>" alt="img1" height="100px" width="100px">
+                                                       <img src="/uploads/<%= products.images[1] %>" alt="img2" height="100px" width="100px">
+                                                       <img src="/uploads/<%= products.images[2] %>" alt="img3" height="100px" width="100px">
+                                                       <img src="/uploads/<%= products.images[3] %>" alt="img4" height="100px" width="100px">
+                                </div> 
+                            </div> 
+                        </form> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/adminFooter.ejs') %>

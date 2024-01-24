@@ -1,0 +1,35 @@
+<%- include('../layouts/header.ejs') %>
+
+<div class="container">
+    <div class="row"> 
+        <div class = "row">
+            <% for(let i=0;i<categories.length;i++ ) { %>
+                <a href="" class="mx-5">
+                    <img src="/uploads/<%=categories[i].image %>" alt="catimg" height="60px" width="60px">
+                    <h6><%= categories[i].name %></h6>
+                </a>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <% for(let i=0; i<products.length; i++){ %>
+            <a href="/about">
+        <div class="col-md-3 p-3">
+            <div class="card" style="width: 15rem; height: 30rem;">
+                <img src="/uploads/<%= products[i].images[0] %>" alt="catimg" height="300px" width="250px" class="p-4" style="transition: all 1.5s ease;">
+                <div class="card-body">
+                    <h5><%= products[i].name %></h5>
+                    <p><%= products[i].description %></p>
+                    <a href="#" class="genric-btn success-border">Add to Cart</a>
+                </div>
+            </div>
+        </div>
+    </a>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../layouts/footer.ejs') %>

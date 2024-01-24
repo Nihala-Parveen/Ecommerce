@@ -1,0 +1,46 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="tables">
+            <div class="table-responsive bs-example widget-shadow">
+                <h4 style="float: left; margin-right: 800px;">Categories</h4>
+                <form>
+                    <input type="text" name="search" placeholder="Search category">
+                    <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+                <table class="table table-bordered"> 
+                    <thead> 
+                        <tr> 
+                            <th>#</th> 
+                            <th>Category Name</th> 
+                            <th>Image</th> 
+                            <th>Action</th> 
+                        </tr> 
+                    </thead> 
+                    <tbody>
+                        <% categories.forEach((category,index) => { %> 
+                        <tr> 
+                            <th scope="row"><%= index+1 %></th> 
+                            <td><%= category.name %></td> 
+                            <td><img src="/uploads/<%=category.image %>" alt="catimg" height="100px" width="100px"></td> 
+                            <td><a href="/editcategory?id=<%= category._id %>" class="text-success padding-5" style="color: green;"><i class="fa fa-pencil-square"></i></a>
+                                <a href="/deletecategory?id=<%= category._id %>" class="text-danger padding-5"><i class="fa fa-trash-o"></i></a></td> 
+                        </tr> 
+                        <% }) %>
+                    </tbody> 
+                </table> 
+                <div class="col-md-6" style="margin-right: 400px;">
+                    <ul class="pagination pagination-sm">
+                        <% for(let j = 1 ; j <= totalPages ; j++ ){ %>
+                        <li class="<%= j === currentPage ? 'active' : '' %>"><a href="?page=<%= j %>"><%= j %></a></li>
+                        <% } %>
+                    </ul>
+                </div> 
+                <button type = "submit" class = "btn btn-success"><a href="/addcategory" class="text-white">Add New Category</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/adminFooter.ejs') %>

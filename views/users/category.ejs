@@ -1,0 +1,9 @@
+<%- include('../layouts/header.ejs') %>
+
+<div class="container">
+    <% for( let i = 0 ; i<categories.length ; i++ ) { %>
+        <p><a href="/product?category=<%= categories[i]._id %>" class="text-dark"><img src="/uploads/<%=categories[i].image %>" alt="" height="50px" width="50px" class="rounded-circle mr-3"><%= categories[i].name %></a></p>    
+    <% } %>
+</div>
+
+<%- include('../layouts/footer.ejs') %>
