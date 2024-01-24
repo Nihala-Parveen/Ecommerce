@@ -170,16 +170,18 @@ const updateProduct = async ( req , res ) => {
             return;
         }
 
-        const image = req.files.map ( (files) => files.filename )
         const updateData = { 
             name : req.body.productname , 
             category : req.body.categoryId ,
             description : req.body.des ,
             price : req.body.price 
         }
-        if(req.files){
-            updateData.images = image
-        }
+
+        if (req.files && req.files.length > 0) {
+            const images = req.files.map((file) => file.filename);
+            updateData.images = images;
+        } 
+
         await product.findByIdAndUpdate (req.body.id , { $set : updateData})
         res.redirect('/viewproducts')
     } catch (error) {
