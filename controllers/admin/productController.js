@@ -28,6 +28,12 @@ const addProduct = async ( req , res ) => {
             errors.price = "Price should be a number.";
         }
 
+        // Validate Stock (only numbers)
+        if (!/^\d+(\.\d+)?$/.test(req.body.stock)) {
+            isValid = false;
+            errors.stock = "Stock should be a number.";
+        }
+
         // Validate Description (letters and numbers, not just spaces)
         if (!/^[a-zA-Z\d\s\(\)\-\/,\.]*[a-zA-Z][a-zA-Z\d\s\(\)\-\/,\.]*$/.test(req.body.des) || !req.body.des.trim()) {
             isValid = false;
@@ -55,6 +61,7 @@ const addProduct = async ( req , res ) => {
             category : req.body.categoryId ,
             description : req.body.des ,
             price : req.body.price ,
+            stock : req.body.stock ,
             images : image
         }) 
         
@@ -157,6 +164,12 @@ const updateProduct = async ( req , res ) => {
             errors.price = "Price should be a number.";
         }
 
+        // Validate Stock (only numbers)
+        if (!/^\d+(\.\d+)?$/.test(req.body.stock)) {
+            isValid = false;
+            errors.stock = "Stock should be a number.";
+        }
+
         // Validate Description (letters and numbers, not just spaces)
         if (!/^[a-zA-Z\d\s\(\)\-\/,\.]*[a-zA-Z][a-zA-Z\d\s\(\)\-\/,\.]*$/.test(req.body.des) || !req.body.des.trim()) {
             isValid = false;
@@ -174,7 +187,8 @@ const updateProduct = async ( req , res ) => {
             name : req.body.productname , 
             category : req.body.categoryId ,
             description : req.body.des ,
-            price : req.body.price 
+            price : req.body.price ,
+            stock : req.body.stock 
         }
 
         if (req.files && req.files.length > 0) {
