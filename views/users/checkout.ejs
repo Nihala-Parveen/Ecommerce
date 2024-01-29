@@ -37,7 +37,7 @@
               <div class="payment_item active">
                 <% users.address.forEach((address, index) => { %>
                   <div class="radion_btn">
-                    <input type="radio" id="f-option<%= index %>" name="address" value="<%= JSON.stringify(address) %>" <% if (index === 0) { %>checked<% } %>/>
+                    <input type="radio" id="f-option<%= index %>" name="address" required value="<%= JSON.stringify(address) %>" <% if (index === 0) { %>checked<% } %>/>
                     <label for="f-option<%= index %>"><%= address.buildingName %> , <%= address.city %> , <%= address.district %> , <%= address.ZIPcode %></label>
                     <div class="check"></div>
                   </div> 
@@ -93,7 +93,7 @@
               </div>
               <div class="payment_item active">
                 <div class="radion_btn">
-                  <input type="radio" id="f-option6" name="payment" value="Paypal" />
+                  <input type="radio" id="f-option6" name="payment" value="Razorpay" />
                   <label for="f-option6">Online Payment </label>
                   <div class="check"></div>
                 </div>
@@ -101,7 +101,7 @@
               
                 <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
                <input type="hidden" name="amount" value="<%= subtotal %>">
-              <button type="submit" class="genric-btn success-border form-control">Confirm Order</button>
+              <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
               </div>
               </div>
             </form>
@@ -109,5 +109,75 @@
       </div>
     </div>
   </section>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "rzp_test_FXivEvC14z0n1x", // Enter the Key ID generated from the Dashboard
+    "amount": "<%= subtotal * 100 %>", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "ShopEasy", //your business name
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+     //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        fetch('/confirmorder' , {
+          method : 'POST' ,
+          headers: {
+                'Content-Type': 'application/json',
+            } ,
+            body: JSON.stringify({
+            userId: '<%= users._id %>',
+            amount: '<%= subtotal %>',
+            payment: 'Razorpay',
+            products: JSON.stringify(carts.products),
+            address: JSON.stringify(users.address), // Add the logic to get the selected address
+        }),
+        })
+        .then(response => response.json())
+    .then(data => {
+        console.log(data); // Log the response from the server
+        // Optionally, you can redirect to a success page or handle the response accordingly
+    })
+    .catch(error => {
+        console.error(error);
+        // Handle the error if any
+    });
+    },
+    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+        "name": "<%= users.name %>", //your customer's name
+        "email": "<%= users.email %>", 
+        "contact": "<%= users.mobile %>"  //Provide the customer's phone number for better conversion rates 
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+
+  document.getElementById('vp').onclick = function(e){
+    
+    e.preventDefault();
+    if (document.getElementById('f-option6').checked) {
+        // Open Razorpay modal
+        rzp1.open();
+    } else {
+        // If "Cash on Delivery" is selected, submit the form directly
+        document.forms[0].submit();
+    }
+}
+
+</script>
 
   <%- include('../layouts/footer.ejs') %>

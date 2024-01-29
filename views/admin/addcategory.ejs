@@ -20,7 +20,10 @@
                             </div> 
                             <div class="form-group"> 
                                 <label for="catimg" class="col-sm-2 control-label">Category Image</label> 
-                                <div class="col-sm-9"> <input type="file" class="form-control" name="catImg" required></div> 
+                                <div class="col-sm-9"> <input type="file" class="form-control" name="catImg" accept="image/*" required oninput="pic.src=window.URL.createObjectURL(this.files[0])">
+                                <img src="" id="pic" alt="" onload="initCropper(this)">
+                                <button id="cropImage" type="button">Crop</button>
+                                <img src="" id="output" alt=""></div> 
                             </div> 
                             <div class="col-sm-offset-2"> 
                                 <button type="submit" class="btn btn-default">Add Category</button> 
@@ -39,5 +42,33 @@
         </div>
     </div>
 </div>
+<script src="/dist/cropper.min.js"></script>
+<script>
+    let cropper
 
+    const image = document.getElementById('pic')
+    function initCropper(image) {
+        if(!image.complete){
+            return setTimeout(() => initCropper(image), 50);
+        }
+        cropper = new Cropper(image , {
+            aspectRatio : 1 ,
+            viewMode : 0
+        })
+    }
+    document.getElementById('cropImage').addEventListener('click' , function(event){
+        event.preventDefault()
+        if(cropper){
+            var croppedimage = cropper.getCroppedCanvas().toDataURL("image/jpg")
+            document.getElementById('output').src = croppedimage
+            if(cropper.ready){
+                document.querySelector('form').submit();
+            } else {
+                console.log("Cropper not ready");
+            }
+        } else {
+            console.log("Cropper not initialized");
+        }
+    })
+</script>
 <%- include('../layouts/adminFooter.ejs') %>

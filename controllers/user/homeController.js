@@ -2,7 +2,8 @@ const category = require('../../models/categoryModel')
 
 const loadHome = async ( req , res ) => {
     try {
-        res.render ('home' , {req})
+        const categoryData = await category.find()
+        res.render ('home' , {categories : categoryData})
     } catch (error) {
         console.log(error.message);
     }

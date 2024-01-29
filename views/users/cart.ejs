@@ -38,9 +38,13 @@
                     <form action="/editquantity" method="POST">
                       <input type="hidden" name="id" value="<%= cart.productId._id %>">
                       <input type="hidden" name="quantity" value="<%= cart.quantity %>">
-                      <button class="bg-danger mr-3" type="submit" name="action" value="decrease">-</button>
-                      <%= cart.quantity %>
-                      <button class="bg-success ml-3" type="submit" name="action" value="increase">+</button>
+                      <% if(cart.productId.stock > 0) { %>
+                        <button class="bg-danger mr-3" type="submit" name="action" value="decrease">-</button>
+                        <%= cart.quantity %>
+                        <button class="bg-success ml-3" type="submit" name="action" value="increase">+</button>
+                      <% } else { %>
+                        <span class="text-danger">Out of stock</span>
+                      <% } %>
                     </form>
                   </td>
                   <td>
@@ -124,7 +128,13 @@
           <div class="checkout_btn_inner float-right">
             <a class="btn_1" href="/productlist">Continue Shopping</a>
             <% if(carts && carts.products && carts.products.length > 0) { %> 
-              <a class="btn_1 checkout_btn_1" href="/checkout">Proceed to checkout</a>
+              <% const outOfStock = carts.products.some((cart)=>cart.productId.stock===0) %>
+              <% console.log("outOfStock" , outOfStock) %>
+              <% if(outOfStock){ %>
+                <span class="btn_1 disabled">Proceed to checkout</span>
+              <% } else { %>
+                <a class="btn_1 checkout_btn_1" href="/checkout">Proceed to checkout</a>
+              <% } %>
             <% } else { %> 
               <span class="btn_1 disabled">Proceed to checkout</span>
             <% } %>

@@ -53,7 +53,7 @@
                             </div>
                             <div class="form-group"> 
                                 <label for="files" class="col-sm-2 control-label">Product Images</label> 
-                                <div class="col-sm-9"> <input type="file" class="form-control" name="files" id="browse" multiple required>
+                                <div class="col-sm-9"> <input type="file" class="form-control" name="files" id="browse" accept="image/*" multiple required>
                                     <span class="text-danger" id="err"></span>
                                     <div id="preview"></div>
                                     <% if (errors && errors.images) { %>
@@ -117,6 +117,7 @@
         function readAndPreview(file) {
             if (/\.(jpe?g|png)$/i.test(file.name)) {
                 const imageContainer = document.createElement("div");
+                
                 imageContainer.classList.add("image-container");
 
                 const image = new Image();

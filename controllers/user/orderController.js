@@ -1,5 +1,12 @@
+const Razorpay = require('razorpay')
 const Order = require('../../models/orderModel')
 const Cart = require('../../models/cartModel')
+const Product = require('../../models/productModel')
+
+const instance = new Razorpay({
+    key_id : process.env.KEY_ID ,
+    key_secret : process.env.KEY_SECRET
+})
 
 const postOrder = async ( req , res ) => {
     try {
@@ -16,6 +23,19 @@ const postOrder = async ( req , res ) => {
                 price : cartItem.price
             }
         })
+
+        for ( const ordrProduct of orderProducts ) {
+            const product = await Product.findById(ordrProduct.productId)
+            product.stock -= ordrProduct.quantity
+            await product.save()
+        }
+        console.log('Reached before Razorpay create order request');
+        const raz = await instance.orders.create({
+            amount: amount * 100,
+            currency: "INR",
+            payment_capture: 1
+        })
+        console.log('Razorpay create order request successful');
         const order = new Order ( {
             user : userId ,
             products : orderProducts ,
@@ -30,7 +50,7 @@ const postOrder = async ( req , res ) => {
             payment : payment
         })
         await order.save()
-        
+
         if(cart){
             cart.products = []
             await cart.save()
