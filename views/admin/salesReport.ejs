@@ -1,0 +1,53 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="tables">
+            <div class="table-responsive bs-example widget-shadow">
+                <h4>Sales Report</h4>
+                <table class="table table-bordered"> 
+                    <thead> 
+                        <tr>  
+                            <th>#</th>
+                            <th>Date</th> 
+                            <th>Product</th> 
+                            <th>Quantity</th> 
+                            <th>Price</th>
+                            <th>Payment Method</th>
+                            <th>Total Amount</th>
+                        </tr> 
+                    </thead> 
+                    <tbody>
+                        <% salesData.forEach((sale,index) => { %> 
+                        <tr> 
+                            <td><%= index+1 %></td> 
+                            <td><%= sale.date.toLocaleDateString() %></td> 
+                            <td>
+                                <% sale.products.forEach((product) => { %> 
+                                    <%= product.productId.name %> <br>
+                                <% }) %>
+                            </td>
+                            <td>
+                                <% sale.products.forEach((product) => { %>
+                                    <%= product.quantity %> <br>
+                                <% }) %>
+                            </td>
+                            <td>
+                                <% sale.products.forEach((product) => { %>
+                                    <%= product.price %> <br>
+                                <% }) %>
+                            </td>
+                            </td> 
+                            <td><%= sale.payment %></td>
+                            <td><%= sale.amount %></td>
+                        </tr> 
+                        <% }) %>
+                    </tbody> 
+                </table> 
+					
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/adminFooter.ejs') %>

@@ -1,8 +1,8 @@
 <%- include('../layouts/header.ejs') %>
 
-<section class="checkout_area section_padding">
+  <section class="checkout_area section_padding">
     <div class="container">
-      
+
       <!-- <div class="cupon_area">
         <div class="check_title">
           <h2>
@@ -17,36 +17,41 @@
         <div class="row">
           <div class="col-lg-8">
             <h3>Billing Details</h3>
-            <form class="row contact_form" action="/confirmorder" method="post">
+            <form class="row contact_form" id="submitForm">
               <input type="hidden" name="userId" value="<%= users._id %>">
               <div class="col-md-6 form-group p_star">
-                <input type="text" class="form-control" id="first" name="name" value="<%= users.name %>" readonly/>                
+                <input type="text" class="form-control" id="first" name="name" value="<%= users.name %>" readonly />
               </div>
               <div class="col-md-6 form-group p_star">
                 <!-- <input type="text" class="form-control" id="last" name="name" />
                 <span class="placeholder" data-placeholder="Last name"></span> -->
               </div>
-              
+
               <div class="col-md-6 form-group p_star">
-                <input type="text" class="form-control" id="number" name="mobile" value="<%= users.mobile %>" readonly/>
-                
+                <input type="text" class="form-control" id="number" name="mobile" value="<%= users.mobile %>"
+                  readonly />
+
               </div>
               <div class="col-md-6 form-group p_star">
-                <input type="text" class="form-control" id="email" name="email" value="<%= users.email %>" readonly/>
+                <input type="text" class="form-control" id="email" name="email" value="<%= users.email %>" readonly />
               </div>
               <div class="payment_item active">
-                <% users.address.forEach((address, index) => { %>
+                <% users.address.forEach((address, index)=> { %>
                   <div class="radion_btn">
-                    <input type="radio" id="f-option<%= index %>" name="address" required value="<%= JSON.stringify(address) %>" <% if (index === 0) { %>checked<% } %>/>
-                    <label for="f-option<%= index %>"><%= address.buildingName %> , <%= address.city %> , <%= address.district %> , <%= address.ZIPcode %></label>
-                    <div class="check"></div>
-                  </div> 
-                <% }) %>
-                <a href="/addAddress" class="text-primary">+Add new address</a>
+                    <input type="radio" id="f-option<%= index %>" name="address" required
+                      value="<%= JSON.stringify(address) %>" <% if (index===0) { %>checked<% } %>/>
+                      <label for="f-option<%= index %>">
+                        <%= address.buildingName %> , <%= address.city %> , <%= address.district %> , <%=
+                                address.ZIPcode %>
+                      </label>
+                      <div class="check"></div>
+                  </div>
+                  <% }) %>
+                    <a href="/addAddress" class="text-primary">+Add new address</a>
               </div>
-              </div>
-              <div class="col-lg-4">
-              <div class="order_box">
+          </div>
+          <div class="col-lg-4">
+            <div class="order_box">
               <h2>Your Order</h2>
               <ul class="list">
                 <li>
@@ -54,22 +59,23 @@
                     <span>Total</span>
                   </a>
                 </li>
-                <% let subtotal = 0 %>
-                <% carts.products.forEach((cart) => { %>
-                    <% const total = cart.price * cart.quantity %>
-                    <% subtotal += total %> 
-                <li>
-                  <a href="#"><%= cart.productId.name %>
-                    <span class="middle">x <%= cart.quantity %></span>
-                    <span class="last">$<%= total %></span>
-                  </a>
-                </li>
-                <% }) %>
+                <% let subtotal=0 %>
+                  <% carts.products.forEach((cart)=> { %>
+                    <% const total=cart.price * cart.quantity %>
+                      <% subtotal +=total %>
+                        <li>
+                          <a href="#">
+                            <%= cart.productId.name %>
+                              <span class="middle">x <%= cart.quantity %></span>
+                              <span class="last">₹<%= total %></span>
+                          </a>
+                        </li>
+                        <% }) %>
               </ul>
               <ul class="list list_2">
                 <li>
                   <a href="#">Subtotal
-                    <span>$<%= subtotal %></span>
+                    <span>₹<%= subtotal %></span>
                   </a>
                 </li>
                 <!-- <li>
@@ -85,99 +91,106 @@
               </ul>
               <div class="payment_item">
                 <div class="radion_btn">
-                  <input type="radio" id="f-option5" name="payment" value="COD"/>
+                  <input type="radio" id="f-option5" name="payment" value="COD" />
                   <label for="f-option5">Cash on Delivery</label>
                   <div class="check"></div>
                 </div>
-               
+
               </div>
               <div class="payment_item active">
                 <div class="radion_btn">
-                  <input type="radio" id="f-option6" name="payment" value="Razorpay" />
+                  <input type="radio" id="f-option6" name="payment" value="onlinePayment" />
                   <label for="f-option6">Online Payment </label>
                   <div class="check"></div>
                 </div>
               </div>
-              
-                <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
-               <input type="hidden" name="amount" value="<%= subtotal %>">
+
+              <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
+              <input type="hidden" name="amount" value="<%= subtotal %>">
               <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
-              </div>
-              </div>
-            </form>
+            </div>
+          </div>
+          </form>
         </div>
       </div>
     </div>
   </section>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-var options = {
-    "key": "rzp_test_FXivEvC14z0n1x", // Enter the Key ID generated from the Dashboard
-    "amount": "<%= subtotal * 100 %>", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-    "currency": "INR",
-    "name": "ShopEasy", //your business name
-    "description": "Test Transaction",
-    "image": "https://example.com/your_logo",
-     //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-    "handler": function (response){
-        fetch('/confirmorder' , {
-          method : 'POST' ,
-          headers: {
-                'Content-Type': 'application/json',
-            } ,
-            body: JSON.stringify({
-            userId: '<%= users._id %>',
-            amount: '<%= subtotal %>',
-            payment: 'Razorpay',
-            products: JSON.stringify(carts.products),
-            address: JSON.stringify(users.address), // Add the logic to get the selected address
-        }),
-        })
+  <script>
+    document.getElementById("submitForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      fetch("/confirmorder", {
+        method: 'POST',
+        body: new URLSearchParams(new FormData(event.target)),
+      })
         .then(response => response.json())
-    .then(data => {
-        console.log(data); // Log the response from the server
-        // Optionally, you can redirect to a success page or handle the response accordingly
-    })
-    .catch(error => {
-        console.error(error);
-        // Handle the error if any
+        .then(data => {
+          if (data.codsuccess && data.cod) {
+            location.href = "/orderSuccess";
+          } else {
+            razorPayment(data.order);
+          }
+        })
+        .catch(error => console.error('Error:', error));
     });
-    },
-    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-        "name": "<%= users.name %>", //your customer's name
-        "email": "<%= users.email %>", 
-        "contact": "<%= users.mobile %>"  //Provide the customer's phone number for better conversion rates 
-    },
-    "notes": {
-        "address": "Razorpay Corporate Office"
-    },
-    "theme": {
-        "color": "#3399cc"
-    }
-};
-var rzp1 = new Razorpay(options);
-rzp1.on('payment.failed', function (response){
-        alert(response.error.code);
-        alert(response.error.description);
-        alert(response.error.source);
-        alert(response.error.step);
-        alert(response.error.reason);
-        alert(response.error.metadata.order_id);
-        alert(response.error.metadata.payment_id);
-});
 
-  document.getElementById('vp').onclick = function(e){
-    
-    e.preventDefault();
-    if (document.getElementById('f-option6').checked) {
-        // Open Razorpay modal
-        rzp1.open();
-    } else {
-        // If "Cash on Delivery" is selected, submit the form directly
-        document.forms[0].submit();
+    function razorPayment(order) {
+      var options = {
+        "key": "rzp_test_GSZimvTeuWT26L",
+        "amount": order.amount,
+        "currency": "INR",
+        "name": "ShopEasy",
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        "order_id": order.id,
+        "handler": function (response) {
+          verifyPayment(response, order)
+        },
+        "prefill": {
+          "name": "<%= users.name %>",
+          "email": "<%= users.email %>",
+          "contact": "<%= users.mobile %>"
+        },
+        "notes": {
+          "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+          "color": "#3399cc"
+        }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
     }
-}
 
-</script>
+    function verifyPayment(response, order) {
+      const data = {
+        response,
+        order
+      };
+
+      fetch('/verifyPayment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success === true) {
+            location.href = '/orderSuccess';
+          } else {
+            alert('Payment Failed!!');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while processing the payment.');
+        });
+    }
+
+
+  </script>
 
   <%- include('../layouts/footer.ejs') %>

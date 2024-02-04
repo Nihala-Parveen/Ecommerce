@@ -53,11 +53,13 @@
     <div class="clearfix"> </div>
 </div>
 
-<!-- <div class="row-one widgettable">
+
+
+<div class="row-one widgettable">
     <div class="col-md-7 content-top-2 card">
         <div class="agileinfo-cdr">
             <div class="card-header">
-                <h3>Weekly Sales</h3>
+                <h3>Monthly Sales</h3>
             </div>
             
                 <div id="Linegraph" style="width: 98%; height: 350px">
@@ -65,99 +67,41 @@
                 
         </div>
     </div>
-    <div class="col-md-3 stat">
-        <div class="content-top-1">
-        <div class="col-md-6 top-content">
-            <h5>Sales</h5>
-            <label>1283+</label>
-        </div>
-        <div class="col-md-6 top-content1">	   
-            <div id="demo-pie-1" class="pie-title-center" data-percent="45"> <span class="pie-value"></span> </div>
-        </div>
-         <div class="clearfix"> </div>
-        </div>
-        <div class="content-top-1">
-        <div class="col-md-6 top-content">
-            <h5>Reviews</h5>
-            <label>2262+</label>
-        </div>
-        <div class="col-md-6 top-content1">	   
-            <div id="demo-pie-2" class="pie-title-center" data-percent="75"> <span class="pie-value"></span> </div>
-        </div>
-         <div class="clearfix"> </div>
-        </div>
-        <div class="content-top-1">
-        <div class="col-md-6 top-content">
-            <h5>Visitors</h5>
-            <label>12589+</label>
-        </div>
-        <div class="col-md-6 top-content1">	   
-            <div id="demo-pie-3" class="pie-title-center" data-percent="90"> <span class="pie-value"></span> </div>
-        </div>
-         <div class="clearfix"> </div>
-        </div>
-    </div>
-    <div class="col-md-2 stat">
-        <div class="content-top">
-            <div class="top-content facebook">
-                <a href="#"><i class="fa fa-facebook"></i></a>
-            </div>
-            <ul class="info">
-                <li class="col-md-6"><b>1,296</b><p>Friends</p></li>
-                <li class="col-md-6"><b>647</b><p>Likes</p></li>
-                <div class="clearfix"></div>
-            </ul>
-        </div>
-        <div class="content-top">
-            <div class="top-content twitter">
-                <a href="#"><i class="fa fa-twitter"></i></a>
-            </div>
-            <ul class="info">
-                <li class="col-md-6"><b>1,997</b><p>Followers</p></li>
-                <li class="col-md-6"><b>389</b><p>Tweets</p></li>
-                <div class="clearfix"></div>
-            </ul>
-        </div>
-        <div class="content-top">
-            <div class="top-content google-plus">
-                <a href="#"><i class="fa fa-google-plus"></i></a>
-            </div>
-            <ul class="info">
-                <li class="col-md-6"><b>1,216</b><p>Followers</p></li>
-                <li class="col-md-6"><b>321</b><p>shares</p></li>
-                <div class="clearfix"></div>
-            </ul>
-        </div>
-    </div>
+    
+    
     <div class="clearfix"> </div>
 </div>
+
+<div class="forms">    
+    <div class=" form-grids row form-grids-right">
         
-        <div class="charts">
-            <div class="col-md-4 charts-grids widget">
-                <div class="card-header">
-                    <h3>Bar chart</h3>
-                </div>
-                
-                <div id="container" style="width: 100%; height:270px;">
-                    <canvas id="canvas"></canvas>
-                </div>
-                <button id="randomizeData">Randomize Data</button>
-                <button id="addDataset">Add Dataset</button>
-                <button id="removeDataset">Remove Dataset</button>
-                <button id="addData">Add Data</button>
-                <button id="removeData">Remove Data</button>
-                
-            </div>
             
-            <div class="col-md-4 charts-grids widget states-mdl">
-                <div class="card-header">
-                    <h3>Column & Line Graph</h3>
-                </div>
-                <div id="chartdiv"></div>
+            <div class="form-body">
+                <form class="form-horizontal" action="/salesReport" method="POST"> 
+                    
+                    <div class="form-group"> 
+                        <label for="category" class="col-sm-2 control-label">View Sales</label> 
+                        <div class="col-sm-9"> <select name="timeRange" id="" class="form-control">                                
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="yearly">Yearly</option>
+                        </select></div> 
+                    </div> 
+                    
+                    
+                    
+                    
+                    <div class="col-sm-offset-2"> 
+                        <button type="submit" class="btn btn-default">Sumbitt</button> 
+                    </div> 
+                </form> 
+                
             </div>
-    
-            <div class="clearfix"> </div>
-        </div> -->
+        
+    </div>
+</div>
+        
+        
         
 
 <!-- for amcharts js -->
@@ -175,5 +119,42 @@
         
     </div>
 </div>
+<script src="/admin/js/SimpleChart.js"></script>
+
+<script>
+    
+     var sales = {
+         linecolor: "#00CC66",
+         title: "Tuesday",
+        
+         values: [
+           { X: "<%= month[0] %>", Y: "<%= Sales[0] %>" },
+           { X: "<%= month[1] %>", Y: "<%= Sales[1] %>" },
+         ]
+     };
+     var revenue = {
+         linecolor: "#FF99CC",
+         title: "Wednesday",
+         values: [
+           { X: "<%= month[0] %>", Y: "<%= Revenue[0] %>" },
+           { X: "<%= month[1] %>", Y: "<%= Revenue[1] %>" },
+         ]
+     };
+     
+     $("#Linegraph").SimpleChart({
+             ChartType: "Line",
+             toolwidth: "50",
+             toolheight: "25",
+             axiscolor: "#E6E6E6",
+             textcolor: "#6E6E6E",
+             showlegends: false,
+             data: [sales, revenue],
+             legendsize: "140",
+             legendposition: 'bottom',
+             xaxislabel: 'Month',
+             title: 'Monthly Revenue',
+             yaxislabel: 'Revenue in ₹'
+         });
+</script>
 
 <%- include('../layouts/adminFooter.ejs') %>

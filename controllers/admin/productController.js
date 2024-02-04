@@ -46,15 +46,6 @@ const addProduct = async ( req , res ) => {
             return;
         }
 
-        if (req.fileValidationError) {
-            throw new Error(req.fileValidationError);
-        }
-
-        if (!req.files || req.files.length === 0) {
-            errors.images = ["No images uploaded"];
-            throw new Error("No images uploaded");
-        }
-
         const image = req.files.map ( (files) => files.filename )
         const newProduct = new product ( {
             name : req.body.productname , 

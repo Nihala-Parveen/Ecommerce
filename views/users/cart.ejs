@@ -1,6 +1,6 @@
 <%- include('../layouts/header.ejs') %>
 
-<section class="cart_area section_padding">
+  <section class="cart_area section_padding">
     <div class="container">
       <div class="cart_inner">
         <div class="table-responsive">
@@ -15,44 +15,50 @@
               </tr>
             </thead>
             <tbody>
-              <% let subtotal = 0 %>
-            <% if (carts && carts.products) { %>
-              <% carts.products.forEach((cart,index) => { %>
-              <% const total = cart.price * cart.quantity %>
-              <% subtotal += total %>
-                <tr>
-                  <td>
-                    <div class="media">
-                      <div class="d-flex">
-                        <img src="/uploads/<%= cart.productId.images[0] %>" alt="img" />
-                      </div>
-                      <div class="media-body">
-                        <p><%= cart.productId.name %></p>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <h5>$<%= cart.price %></h5>
-                  </td>
-                  <td>
-                    <form action="/editquantity" method="POST">
-                      <input type="hidden" name="id" value="<%= cart.productId._id %>">
-                      <input type="hidden" name="quantity" value="<%= cart.quantity %>">
-                      <% if(cart.productId.stock > 0) { %>
-                        <button class="bg-danger mr-3" type="submit" name="action" value="decrease">-</button>
-                        <%= cart.quantity %>
-                        <button class="bg-success ml-3" type="submit" name="action" value="increase">+</button>
-                      <% } else { %>
-                        <span class="text-danger">Out of stock</span>
-                      <% } %>
-                    </form>
-                  </td>
-                  <td>
-                    <h5>$<%= total %></h5>
-                  </td>
-                  <td><a href="/removecart?id=<%= carts._id %>&productId=<%= cart.productId._id %>" class="text-danger"><i class="fa fa-trash "></i></a></td>
-                </tr>
-              <!-- <tr class="bottom_button">
+              <% let subtotal=0 %>
+                <% if (carts && carts.products) { %>
+                  <% carts.products.forEach((cart,index)=> { %>
+                    <% const total=cart.price * cart.quantity %>
+                      <% subtotal +=total %>
+                        <tr>
+                          <td>
+                            <div class="media">
+                              <div class="d-flex">
+                                <img src="/uploads/<%= cart.productId.images[0] %>" alt="img" />
+                              </div>
+                              <div class="media-body">
+                                <p>
+                                  <%= cart.productId.name %>
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <h5>$<%= cart.price %>
+                            </h5>
+                          </td>
+                          <td>
+                            <form action="/editquantity" method="POST">
+                              <input type="hidden" name="id" value="<%= cart.productId._id %>">
+                              <input type="hidden" name="quantity" value="<%= cart.quantity %>">
+                              <% if(cart.productId.stock> 0) { %>
+                                <button class="bg-danger mr-3" type="submit" name="action" value="decrease">-</button>
+                                <%= cart.quantity %>
+                                  <button class="bg-success ml-3 increase-btn" type="submit"
+                                    name="action" value="increase">+</button>
+                                  <% } else { %>
+                                    <span class="text-danger">Out of stock</span>
+                                    <% } %>
+                            </form>
+                          </td>
+                          <td>
+                            <h5>₹<%= total %>
+                            </h5>
+                          </td>
+                          <td><a href="/removecart?id=<%= carts._id %>&productId=<%= cart.productId._id %>"
+                              class="text-danger"><i class="fa fa-trash "></i></a></td>
+                        </tr>
+                        <!-- <tr class="bottom_button">
                 <td>
                   <a class="btn_1" href="#">Update Cart</a>
                 </td>
@@ -64,21 +70,22 @@
                   </div>
                 </td>
               </tr> -->
-              <% }) %>
-              <% } else { %>
-                <p>No items in the cart.</p>
-              <% } %>
-              <tr>
-                <td></td>
-                <td></td>
-                <td>
-                  <h5>Subtotal</h5>
-                </td>
-                <td>
-                  <h5>$<%= subtotal %></h5>
-                </td>
-              </tr>
-              <!-- <tr class="shipping_area">
+                        <% }) %>
+                          <% } else { %>
+                            <p>No items in the cart.</p>
+                            <% } %>
+                              <tr>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                  <h5>Subtotal</h5>
+                                </td>
+                                <td>
+                                  <h5>₹<%= subtotal %>
+                                  </h5>
+                                </td>
+                              </tr>
+                              <!-- <tr class="shipping_area">
                 <td></td>
                 <td></td>
                 <td>
@@ -127,20 +134,23 @@
           </table>
           <div class="checkout_btn_inner float-right">
             <a class="btn_1" href="/productlist">Continue Shopping</a>
-            <% if(carts && carts.products && carts.products.length > 0) { %> 
-              <% const outOfStock = carts.products.some((cart)=>cart.productId.stock===0) %>
-              <% console.log("outOfStock" , outOfStock) %>
-              <% if(outOfStock){ %>
-                <span class="btn_1 disabled">Proceed to checkout</span>
-              <% } else { %>
-                <a class="btn_1 checkout_btn_1" href="/checkout">Proceed to checkout</a>
-              <% } %>
-            <% } else { %> 
-              <span class="btn_1 disabled">Proceed to checkout</span>
-            <% } %>
+            <% if(carts && carts.products && carts.products.length> 0) { %>
+              <% const outOfStock=carts.products.some((cart)=>cart.productId.stock===0) %>
+                <% console.log("outOfStock" , outOfStock) %>
+                  <% if(outOfStock){ %>
+                    <span class="btn_1 disabled">Proceed to checkout</span>
+                    <% } else { %>
+                      <a class="btn_1 checkout_btn_1" href="/checkout">Proceed to checkout</a>
+                      <% } %>
+                        <% } else { %>
+                          <span class="btn_1 disabled">Proceed to checkout</span>
+                          <% } %>
           </div>
         </div>
       </div>
   </section>
 
-<%- include('../layouts/footer.ejs') %>
+
+
+
+  <%- include('../layouts/footer.ejs') %>

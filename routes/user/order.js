@@ -12,7 +12,9 @@ const ordercontroller = require('../../controllers/user/orderController')
 const auth = require('../../middleware/userAuth')
 
 orderRoute.post('/confirmorder' , ordercontroller.postOrder )
-orderRoute.get('/orders' , auth.isLogin ,ordercontroller.getOrders )
+orderRoute.get('/orderSuccess' , ordercontroller.orderSuccess )
+orderRoute.post('/verifyPayment' , ordercontroller.verifyPayment )
+orderRoute.get('/orders' , auth.isLogin , ordercontroller.getOrders )
 orderRoute.get('/vieworder' , ordercontroller.viewOrder )
 orderRoute.post('/cancelOrder' , ordercontroller.cancelOrder )
 
