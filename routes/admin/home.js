@@ -9,5 +9,6 @@ const auth = require('../../middleware/adminAuth')
 
 admin_Route.get ( "/admin" , auth.isLogin , homeController.loadHome)
 admin_Route.post ("/salesReport" ,homeController.getSalesReport)
+admin_Route.post('/downloadPdf' , homeController.downloadSalesReport )
 
 module.exports = admin_Route

@@ -4,7 +4,12 @@
     <div class="main-page">
         <div class="tables">
             <div class="table-responsive bs-example widget-shadow">
-                <h4>Sales Report</h4>
+                <h4  style="float: left; margin-right: 800px;">Sales Report</h4>
+                <form action="/downloadPdf" method="post">
+                    <input type="hidden" name="fromDate" value="<%= fromDate.toISOString() %>">
+                    <input type="hidden" name="toDate" value="<%= toDate.toISOString() %>">
+                    <button type="submit"  class = "btn btn-success">Download Sales Report</button>
+                </form>
                 <table class="table table-bordered"> 
                     <thead> 
                         <tr>  

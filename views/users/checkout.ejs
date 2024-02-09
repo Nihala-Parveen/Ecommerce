@@ -1,8 +1,14 @@
 <%- include('../layouts/header.ejs') %>
 
-  <section class="checkout_area section_padding">
+  <section class="p-4">
     <div class="container">
-
+      <nav aria-label="breadcrumb" style="background-color: white;" class="mb-5">
+        <ol class="breadcrumb mt-3">
+          <li class="breadcrumb-item"><a href="/home">Home</a></li>
+          <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+        </ol>
+      </nav>
       <!-- <div class="cupon_area">
         <div class="check_title">
           <h2>
@@ -60,18 +66,25 @@
                   </a>
                 </li>
                 <% let subtotal=0 %>
+                <% let allInStock = true %>
                   <% carts.products.forEach((cart)=> { %>
-                    <% const total=cart.price * cart.quantity %>
+                    <% const total=cart.productId.price * cart.quantity %>
                       <% subtotal +=total %>
                         <li>
                           <a href="#">
                             <%= cart.productId.name %>
+                            <% if(cart.productId.stock === 0){ %> 
+                              <% allInStock = false %>
+                              <span class="text-danger">Out of stock</span>
+                            <% } else { %>
                               <span class="middle">x <%= cart.quantity %></span>
                               <span class="last">₹<%= total %></span>
+                            <% } %>
                           </a>
                         </li>
                         <% }) %>
               </ul>
+              <% if(allInStock){ %> 
               <ul class="list list_2">
                 <li>
                   <a href="#">Subtotal
@@ -89,6 +102,7 @@
                   </a>
                 </li> -->
               </ul>
+              
               <div class="payment_item">
                 <div class="radion_btn">
                   <input type="radio" id="f-option5" name="payment" value="COD" />
@@ -97,6 +111,7 @@
                 </div>
 
               </div>
+
               <div class="payment_item active">
                 <div class="radion_btn">
                   <input type="radio" id="f-option6" name="payment" value="onlinePayment" />
@@ -107,8 +122,22 @@
 
               <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
               <input type="hidden" name="amount" value="<%= subtotal %>">
+              
               <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
+              <% if (errorMessages && errorMessages.length > 0) { %>
+                <ul>
+                    <% errorMessages.forEach((message) => { %>
+                      <% console.log(message) %>
+                        <li><h1><%= message %></h1></li>
+                    <% }) %>
+                </ul>
+            <% } %>
+            
+              <% } else { %>
+                <p class="pl-5 pt-5 text-danger">Products Out of stock</p>
+              <% } %>
             </div>
+            <span id="maxStock" class="text-danger" style="display: none;">Some products are out of stock or the quantity exceeds available stock.</span>
           </div>
           </form>
         </div>
@@ -120,6 +149,22 @@
     document.getElementById("submitForm").addEventListener("submit", function (event) {
       event.preventDefault();
 
+      const products = JSON.parse(document.querySelector('input[name="products"]').value);
+  let allProductsInStock = true;
+const maxStockError = document.getElementById('maxStock')
+  products.forEach(product => {
+    if (product.productId.stock < product.quantity) {
+      allProductsInStock = false;
+      return; 
+    }
+  });
+
+  if (!allProductsInStock) {
+    maxStockError.style.display = 'inline'
+    alert("Some products are out of stock or the quantity exceeds available stock.");
+    return;
+  }
+  
       fetch("/confirmorder", {
         method: 'POST',
         body: new URLSearchParams(new FormData(event.target)),

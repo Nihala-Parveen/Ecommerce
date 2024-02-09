@@ -64,16 +64,31 @@ const decreaseQuantity = async (productId) => {
     }
 }
 
-const updateQuantity = async ( req , res ) => {
+const updateQuantity = async (req, res) => {
     try {
-        const { id , action } = req.body
-        if(action === 'increase'){
-            await increaseQuantity(id)
+        const { id, action } = req.body
+        const product = await Product.findById(id)
+        const cart = await Cart.findOne({ 'products.productId': id });
+        let productError = []
+        if (cart) {
+            const productIndex = cart.products.findIndex((product) => product.productId.toString() === id);
+
+            if (action === 'increase') {
+                if (product.stock > cart.products[productIndex].quantity) {
+                    await increaseQuantity(id)
+                }
+                else {
+                    const userId = req.session.user_id
+                    const cartData = await Cart.findOne({ userId }).populate('products.productId')
+                    productError.push({ id: productIndex, message: "Maximum stock reached" });
+                    return res.render('cart', { carts: cartData, productError })
+                }
+            }
         }
-        if(action === 'decrease') {
+        if (action === 'decrease') {
             await decreaseQuantity(id)
         }
-        res.redirect('/cart')
+        res.sendStatus(200);
     } catch (error) {
         console.log(error.message);
     }
@@ -83,7 +98,8 @@ const viewcart = async ( req , res ) => {
     try {
         const userId = req.session.user_id
         const cartData = await Cart.findOne({ userId }).populate('products.productId')
-        res.render('cart' , { carts : cartData })
+        const productError = []
+        res.render('cart' , { carts : cartData , productError })
     } catch (error) {
         console.log(error.message);
     }
@@ -103,7 +119,8 @@ const loadCheckout = async ( req , res ) => {
     try {
         const userId = req.session.user_id
         const [ userData , cartData ] = await Promise.all ( [ User.findById({_id:userId}) , Cart.findOne({userId}).populate('products.productId')])
-        res.render('checkout' , { users : userData , carts : cartData })
+        let errorMessages = []
+        res.render('checkout' , { users : userData , carts : cartData , errorMessages })
     } catch (error) {
        console.log(error.message); 
     }

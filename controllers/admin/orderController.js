@@ -19,6 +19,7 @@ const viewOrder = async ( req , res ) => {
                 { status : { $regex : '.*'+search+'.*' , $options : 'i' }}
             ]
         }).populate('user')
+        .sort({date:-1})
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec()
@@ -42,7 +43,7 @@ const viewOrder = async ( req , res ) => {
 
 const orderDetails = async ( req , res ) => {
     try {
-        const orderData = await Order.findById({_id:req.query.id}).populate('products.productId')
+        const orderData = await Order.findById({_id:req.query.id}).populate('products.productId').populate('user')
         if(orderData){
             res.render('orderdetails' , { orders : orderData})
         }

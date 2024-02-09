@@ -23,5 +23,5 @@ const isLogout = async (req,res,next) => {
 
 module.exports = {
     isLogin ,
-    isLogout
+    isLogout 
 }

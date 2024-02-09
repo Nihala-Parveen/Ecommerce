@@ -1,9 +1,8 @@
 const Razorpay = require('razorpay')
+const User = require('../../models/userModel')
 const Order = require('../../models/orderModel')
 const Cart = require('../../models/cartModel')
 const Product = require('../../models/productModel')
-
-
 
 const postOrder = async (req, res) => {
     try {
@@ -12,14 +11,29 @@ const postOrder = async (req, res) => {
         const selectedAddress = JSON.parse(req.body.address)
         const date = new Date()
 
-        const cart = await Cart.findOne({ userId }).populate('products.productId')
+        
+        const [ cart , userData ] = await Promise.all ([ Cart.findOne({ userId }).populate('products.productId') , User.findById({ _id : userId }) ])
         const orderProducts = cart.products.map(cartItem => {
             return {
                 productId: cartItem.productId._id,
                 quantity: cartItem.quantity,
-                price: cartItem.price
+                price: cartItem.productId.price
             }
         })
+
+        let errorMessages = []; 
+
+        for (const cartItem of cart.products) {
+            const product = await Product.findById(cartItem.productId)
+            if (cartItem.quantity > product.stock) {
+                errorMessages.push(`Quantity of product ${product.name} exceeds available stock`);
+            }
+        }
+
+        if (errorMessages.length > 0) {
+            console.log(errorMessages);
+            return res.render('checkout', { carts: cart, users: userData, errorMessages });
+        }
 
         const order = new Order({
             user: userId,
@@ -31,8 +45,7 @@ const postOrder = async (req, res) => {
                 district: selectedAddress.district,
                 ZIPcode: selectedAddress.ZIPcode
             },
-            date: date,
-            status: "Placed"
+            date: date
         })
         await order.save()
 
@@ -40,7 +53,7 @@ const postOrder = async (req, res) => {
         req.session.OrderId = orderData._id
 
         if (payment === "COD") {
-            await Order.updateOne({ _id: orderData._id }, { $set: { payment: "COD" } })
+            await Order.updateOne({ _id: orderData._id }, { $set: { payment: "COD" , status: "Placed" } })
 
             for (const ordrProduct of orderProducts) {
                 const product = await Product.findById(ordrProduct.productId)
@@ -81,7 +94,7 @@ const verifyPayment = async ( req , res ) => {
     try {
         const orderId = req.session.OrderId
         const userId = req.session.user_id
-        await Order.updateOne({ _id : orderId , user : userId } , { $set : { payment : "Online Payment "}}) 
+        await Order.updateOne({ _id : orderId , user : userId } , { $set : { payment : "Online Payment" , status: "Placed" , paymentStatus : "Paid" }}) 
 
         const order = await Order.findById(orderId).populate('products.productId')
         for(orderProduct of order.products){
@@ -114,49 +127,7 @@ const orderSuccess = async ( req , res ) => {
 const getOrders = async (req , res) => {
     try {
         const userId = req.session.user_id
-        const orderData = await Order.find({user : userId}).populate('products.productId')
-        const currentDate = new Date();
-const currentYear = currentDate.getFullYear();
-
-const monthlySales = await Order.aggregate([
-    {
-      $match: { status: "Delivered", date: { $gte: new Date(`${currentYear}-01-01`), $lt: new Date(`${currentYear + 1}-01-01`) } }
-    },
-    {
-        $group: {
-            _id: {
-              $switch: {
-                branches: [
-                  { case: { $eq: [{ $month: "$date" }, 1] }, then: "Jan" },
-                  { case: { $eq: [{ $month: "$date" }, 2] }, then: "Feb" },
-                  { case: { $eq: [{ $month: "$date" }, 3] }, then: "Mar" },
-                  { case: { $eq: [{ $month: "$date" }, 4] }, then: "Apr" },
-                  { case: { $eq: [{ $month: "$date" }, 5] }, then: "May" },
-                  { case: { $eq: [{ $month: "$date" }, 6] }, then: "Jun" },
-                  { case: { $eq: [{ $month: "$date" }, 7] }, then: "Jul" },
-                  { case: { $eq: [{ $month: "$date" }, 8] }, then: "Aug" },
-                  { case: { $eq: [{ $month: "$date" }, 9] }, then: "Sep" },
-                  { case: { $eq: [{ $month: "$date" }, 10] }, then: "Oct" },
-                  { case: { $eq: [{ $month: "$date" }, 11] }, then: "Nov" },
-                  { case: { $eq: [{ $month: "$date" }, 12] }, then: "Dec" },
-                ],
-                default: null
-              }
-            },
-            totalSales: { $sum: 1 },
-            totalRevenue: { $sum: "$amount" }
-          }
-          
-    }
-  ])
-  
-const d = monthlySales.map((o) => o._id)
-const a = monthlySales.map((e) => e.totalSales)
-const r = monthlySales.map((or) => or.totalRevenue )
-console.log("Month",d);
-console.log("Sales",a);
-console.log("Revenue" , r);
-
+        const orderData = await Order.find({user : userId}).populate('products.productId').sort({ date : -1 })
 
         if(orderData){
             res.render('orderdetails' , { orders : orderData })
@@ -181,6 +152,12 @@ const cancelOrder = async ( req , res ) => {
     try {
         const { id } = req.query
         await Order.findByIdAndUpdate(id , { $set : { status : "Cancelled"}})
+        const order = await Order.findById(id).populate('products.productId')
+        for(orderProduct of order.products){
+            const product = await Product.findById(orderProduct.productId)
+            product.stock += orderProduct.quantity
+            await product.save()
+        }
         res.status(200).json({ message: 'Order successfully cancelled' });
     } catch (error) {
         console.log(error.message);

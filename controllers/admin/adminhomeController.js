@@ -1,3 +1,4 @@
+const PDFDocument = require('pdfkit')
 const User = require('../../models/userModel')
 const Product = require('../../models/productModel')
 const Order = require('../../models/orderModel') 
@@ -99,13 +100,70 @@ const getSalesReport = async ( req , res ) => {
             }
         }).populate("products.productId")
 
-        res.render("salesReport" , { salesData })
+        res.render("salesReport" , { salesData , fromDate , toDate })
     } catch (error) {
         console.log(error.message);
     }
 }
 
+const downloadSalesReport = async (req, res) => {
+    try {
+        let { fromDate, toDate } = req.body;
+        fromDate = new Date(fromDate);
+        toDate = new Date(toDate);
+        
+        const salesData = await Order.find({ status: "Delivered" }).populate('products.productId')
+        
+        var filename = "orders_" + fromDate.toISOString() + "_" + toDate.toISOString() + ".pdf";
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", 'attachment; filename="' + filename + '"');
+        
+        const doc = new PDFDocument();
+        doc.text("#", { align: "center" });
+        doc.text("DATE", { align: "center" });
+        doc.text("PRODUCT", { align: "center" });
+        doc.text("QUANTITY", { align: "center" });
+        doc.text("PRICE", { align: "center" });
+        doc.text("PAYMENT METHOD", { align: "center" });
+        doc.text("TOTAL AMOUNT", { align: "center" });
+
+        salesData.forEach((sale, index) => {
+            var orderDate = new Date(sale.date);
+            if (orderDate >= fromDate && orderDate <= toDate) {
+                doc.text((index + 1).toString(), { align: "center" });
+                doc.text(sale.date.toLocaleDateString(), { align: "center" });
+                
+                let products = "";
+                let quantities = "";
+                let prices = "";
+
+                sale.products.forEach((product) => {
+                    products += product.productId.name + "\n";
+                    quantities += product.quantity + "\n";
+                    prices += product.price + "\n";
+                });
+
+                doc.text(products, { align: "center" });
+                doc.text(quantities, { align: "center" });
+                doc.text(prices, { align: "center" });
+
+                doc.text(sale.payment, { align: "center" });
+                doc.text(sale.amount, { align: "center" });
+
+                doc.moveDown();
+            }
+        });
+
+        doc.pipe(res);
+        doc.end();
+    } catch (error) {
+        console.log(error.message);
+    }
+};
+
+
 module.exports = {
     loadHome ,
-    getSalesReport
+    getSalesReport , 
+    downloadSalesReport
 }

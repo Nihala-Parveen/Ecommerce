@@ -1,13 +1,18 @@
 <%- include('../layouts/header.ejs') %>
 
-  <section class="cart_area section_padding">
+  <section class="p-4">
     <div class="container">
+      <nav aria-label="breadcrumb" style="background-color: white;" class="mb-5">
+        <ol class="breadcrumb mt-3">
+          <li class="breadcrumb-item"><a href="/home">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Cart</li>
+        </ol>
+      </nav>
       <div class="cart_inner">
         <div class="table-responsive">
           <table class="table">
             <thead>
-              <tr>
-                <th scope="col">Product</th>
+              <tr> <th scope="col">Product</th>
                 <th scope="col">Price</th>
                 <th scope="col">Quantity</th>
                 <th scope="col">Total</th>
@@ -18,7 +23,7 @@
               <% let subtotal=0 %>
                 <% if (carts && carts.products) { %>
                   <% carts.products.forEach((cart,index)=> { %>
-                    <% const total=cart.price * cart.quantity %>
+                    <% const total=cart.productId.price * cart.quantity %>
                       <% subtotal +=total %>
                         <tr>
                           <td>
@@ -34,25 +39,32 @@
                             </div>
                           </td>
                           <td>
-                            <h5>$<%= cart.price %>
+                            <h5>$<%= cart.productId.price %>
                             </h5>
                           </td>
                           <td>
-                            <form action="/editquantity" method="POST">
+                            <form>
                               <input type="hidden" name="id" value="<%= cart.productId._id %>">
                               <input type="hidden" name="quantity" value="<%= cart.quantity %>">
                               <% if(cart.productId.stock> 0) { %>
-                                <button class="bg-danger mr-3" type="submit" name="action" value="decrease">-</button>
-                                <%= cart.quantity %>
-                                  <button class="bg-success ml-3 increase-btn" type="submit"
-                                    name="action" value="increase">+</button>
+                                <button class="bg-danger mr-3" type="button" name="action" value="decrease" onclick="decreaseQuantity('<%= cart.productId._id %>')">-</button>
+                                <input type="number" id="quantityInput_<%= cart.productId._id %>" value="<%= cart.quantity %>" max="<%= cart.productId.stock %>" data-price="<%= cart.productId.price %>"style="width: 40px;">
+                                  <button class="bg-success ml-3 increase-btn" type="button"
+                                    name="action" value="increase" onclick="increaseQuantity('<%= cart.productId._id %>')">+</button> <br>
+                                    <span id="maxStockError_<%= cart.productId._id %>" class="text-danger" style="display: none;">Maximum stock reached</span>
+                                    <% productError.forEach(error => { %>
+                                      <% if (error.id === cart.productId._id.toString()) { %>
+                                          <span class="text-danger"><%= error.message %></span>
+                                      <% } %>
+                                  <% }) %>
+                                    
                                   <% } else { %>
                                     <span class="text-danger">Out of stock</span>
                                     <% } %>
                             </form>
                           </td>
                           <td>
-                            <h5>₹<%= total %>
+                            <h5 id="total_<%= cart.productId._id %>">₹<%= total %>
                             </h5>
                           </td>
                           <td><a href="/removecart?id=<%= carts._id %>&productId=<%= cart.productId._id %>"
@@ -81,7 +93,7 @@
                                   <h5>Subtotal</h5>
                                 </td>
                                 <td>
-                                  <h5>₹<%= subtotal %>
+                                  <h5 id="subtotal">₹<%= subtotal %>
                                   </h5>
                                 </td>
                               </tr>
@@ -149,6 +161,87 @@
         </div>
       </div>
   </section>
+  <script>
+    const increaseQuantity = async (productId) => {
+        try {
+          const quantityInput = document.getElementById(`quantityInput_${productId}`);
+        const currentQuantity = parseInt(quantityInput.value);
+        const maxStock = parseInt(quantityInput.max);
+        const maxStockError = document.getElementById(`maxStockError_${productId}`);
+        if (currentQuantity >= maxStock) {
+          maxStockError.style.display = 'inline'
+            return;
+        }
+        maxStockError.style.display = 'none';
+        quantityInput.value = currentQuantity + 1;
+        updateTotals(productId, currentQuantity + 1);
+            const response = await fetch('/editquantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: productId,
+                    action: 'increase'
+                })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to increase quantity');
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
+
+    const decreaseQuantity = async (productId) => {
+        try {
+          const quantityInput = document.getElementById(`quantityInput_${productId}`);
+        const currentQuantity = parseInt(quantityInput.value);
+
+        if (currentQuantity <= 1) {
+            // Minimum quantity reached
+            return;
+        }
+
+        // Update UI immediately
+        quantityInput.value = currentQuantity - 1;
+        updateTotals(productId, currentQuantity - 1);
+            const response = await fetch('/editquantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: productId,
+                    action: 'decrease'
+                })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to decrease quantity');
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
+    const updateTotals = (productId, newQuantity) => {
+    const quantityInput = document.getElementById(`quantityInput_${productId}`);
+    const price = parseFloat(quantityInput.dataset.price); 
+    const totalElement = document.getElementById(`total_${productId}`);
+    const subtotalElement = document.getElementById('subtotal');
+
+    // Update total for the specific product
+    const total = price * newQuantity;
+    totalElement.textContent = `₹${total}`;
+
+    // Update subtotal
+    const allTotalElements = document.querySelectorAll('[id^="total_"]');
+    let subtotal = 0;
+    allTotalElements.forEach((element) => {
+        subtotal += parseFloat(element.textContent.replace('₹', ''));
+    });
+    subtotalElement.textContent = `₹${subtotal}`;
+};
+</script>
 
 
 

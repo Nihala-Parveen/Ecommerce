@@ -1,4 +1,5 @@
 <%- include('../layouts/header.ejs') %>
+<section class="p-5">
 <div class="container">
     <nav aria-label="breadcrumb" style="background-color: white;">
         <ol class="breadcrumb mt-3">
@@ -26,6 +27,7 @@
                         <th scope="col">Product Name</th>
                         <th scope="col">Quantity</th>
                         <th scope="col">Price</th>
+                        <th scope="col">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,15 +37,18 @@
                             <td><%= product.productId.name %></td>
                             <td><%= product.quantity %></td>
                             <td><%= product.price * product.quantity %></td>
+                            <td><%= orders.status %></td>
                         </tr>
                     <% }) %>
                 </tbody>
             </table>
             
             <p>Total Amount: <%= orders.amount %></p>
+            <p>Payment Method : <%= orders.payment %></p>
             <p>Status: <%= orders.status %></p>
         </div>
     
 </div>
+</section>
 
 <%- include('../layouts/footer.ejs') %>
