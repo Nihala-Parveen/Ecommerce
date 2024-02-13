@@ -17,5 +17,6 @@ orderRoute.post('/verifyPayment' , ordercontroller.verifyPayment )
 orderRoute.get('/orders' , auth.isLogin , ordercontroller.getOrders )
 orderRoute.get('/vieworder' , ordercontroller.viewOrder )
 orderRoute.post('/cancelOrder' , ordercontroller.cancelOrder )
+orderRoute.post('/cancelProduct' , ordercontroller.cancelOrderItem )
 
 module.exports = orderRoute

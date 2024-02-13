@@ -17,6 +17,14 @@ const orderSchema = mongoose.Schema ( {
         price : {
             type : Number ,
             required : true
+        } , 
+        status : {
+            type : String , 
+            default : 'Pending'
+        } ,
+        paymentStatus : {
+            type : String , 
+            default : 'Pending'
         }
     }] ,
     amount : {
@@ -34,17 +42,20 @@ const orderSchema = mongoose.Schema ( {
         required : true
     } ,
     payment : {
-        type : String 
-    } ,
-    paymentStatus : {
+        type: String
+    },
+    paymentStatus: {
         type: String,
         default: 'Pending'
-    } ,
-    status : {
+    },
+    status: {
         type: String,
-        default: 'Pending', 
+        default: 'Pending',
         required: true
     }
-})
+},
+    {
+        timestamps: true,
+    })
 
 module.exports = mongoose.model ('Order' , orderSchema )

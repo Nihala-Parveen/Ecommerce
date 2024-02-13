@@ -1,0 +1,31 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="tables">
+            <div class="table-responsive bs-example widget-shadow">
+                <h4 style="float: left; margin-right: 800px;">Best Selling Categories</h4>
+                <table class="table table-bordered"> 
+                    <thead> 
+                        <tr> 
+                            <th>#</th> 
+                            <th>Category</th> 
+                            <th>Total Sold</th> 
+                        </tr> 
+                    </thead> 
+                    <tbody>
+                        <% topCategory.forEach((category,index) => { %> 
+                        <tr> 
+                            <th scope="row"><%= index+1 %></th> 
+                            <td><%= category.categoryName %></td> 
+                            <td><%= category.totalSold %></td>  
+                        </tr> 
+                        <% }) %>
+                    </tbody> 
+                </table> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/adminFooter.ejs') %>

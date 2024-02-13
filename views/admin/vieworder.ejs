@@ -12,13 +12,11 @@
                 <table class="table table-bordered"> 
                     <thead> 
                         <tr> 
-                            <th>#</th> 
-                            <th>Customer Name</th> 
-                            <th>Mobile</th> 
-                            <th>Address</th> 
+                            <th>#</th>  
                             <th>Date</th>
                             <th>Amount</th>
-                            <th>Payment</th>
+                            <th>Payment Type</th>
+                            <th>Payment Status</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr> 
@@ -26,13 +24,11 @@
                     <tbody>
                         <% orders.forEach ( (order,index) => { %> 
                         <tr> 
-                            <th scope="row"><%= index+1 %></th> 
-                            <td><%= order.user.name %></td> 
-                            <td><%= order.user.mobile %></td> 
-                            <td><p><%= order.address.buildingName %> ,</p><p><%= order.address.city %> ,</p><p><%= order.address.district %> ,</p><p><%= order.address.ZIPcode %></p></td>
+                            <th scope="row"><%= index+1 %></th>  
                             <td><%= order.date.toLocaleDateString('en-GB') %></td>
                             <td><%= order.amount %></td>
                             <td><%= order.payment %></td>
+                            <td><%= order.paymentStatus %></td>
                             <td><%= order.status %></td>
                             <td><a href="/order-details?id=<%= order._id %>" class="padding-5"><i class="fa fa-eye"></i></a>
                                 <% if (!(order.status === "Delivered" || order.status === "Cancelled")) { %>
@@ -42,7 +38,7 @@
                         <% }) %>
                     </tbody> 
                 </table> 
-                <div class="col-md-6" style="margin-right: 400px;">
+                <div class="col-md-6">
                     <ul class="pagination pagination-sm">
                         <% for(let j = 1 ; j <= totalPages ; j++ ){ %>
                         <li class="<%= j === currentPage ? 'active' : '' %>"><a href="?page=<%= j %>"><%= j %></a></li>

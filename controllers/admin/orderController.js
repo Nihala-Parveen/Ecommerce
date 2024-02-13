@@ -68,7 +68,19 @@ const changeStatus = async ( req , res ) => {
     try {
         const id = req.query.id
         const newStatus = req.body.status
-        await Order.findByIdAndUpdate( id , {$set : { status : newStatus }})
+        const order =  await Order.findByIdAndUpdate( id , {$set : { status : newStatus }})
+
+        order.products.forEach((product) => {
+            if(product.status !== "Cancelled") {
+                product.status = newStatus
+            }
+        })
+        await order.save()
+
+        if (order.payment === 'COD' && newStatus === 'Delivered') {
+            await Order.findByIdAndUpdate(id, { $set: { paymentStatus: 'Paid' } });
+        } 
+        
         res.redirect('/view-orders')
     } catch (error) {
         console.log(error.message);

@@ -1,0 +1,31 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="tables">
+            <div class="table-responsive bs-example widget-shadow">
+                <h4 style="float: left; margin-right: 800px;">Best Selling Products</h4>
+                <table class="table table-bordered"> 
+                    <thead> 
+                        <tr> 
+                            <th>#</th> 
+                            <th>Product</th> 
+                            <th>Total Sold</th> 
+                        </tr> 
+                    </thead> 
+                    <tbody>
+                        <% topProducts.forEach((product,index) => { %> 
+                        <tr> 
+                            <th scope="row"><%= index+1 %></th> 
+                            <td><a href="/viewsingleproduct?id=<%= product.productId %>" style="color: black;"><%= product.name %></a></td> 
+                            <td><%= product.totalSold %></td>  
+                        </tr> 
+                        <% }) %>
+                    </tbody> 
+                </table> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/adminFooter.ejs') %>

@@ -13,6 +13,7 @@
             <th scope="col">#</th>
             <th scope="col">Product Name</th>
             <th scope="col">Quantity</th>
+            <th scope="col">Date</th>
             <th scope="col">Total amount</th>
             <th scope="col">Status</th>
             <th></th>
@@ -27,12 +28,17 @@
                     <% } %>
                     <td><a href="/vieworder?id=<%= order._id %>" class="text-dark"><%= product.productId.name %></a></td>
                     <td><%= product.quantity %></td>
+                    <td><%= order.date.toLocaleDateString('en-GB') %></td>
                     <% if(productIndex === 0) { %>
                         <td rowspan="<%= order.products.length %>"><%= order.amount %></td>
                         <td rowspan="<%= order.products.length %>"><%= order.status %></td>
-                        <% if (!(order.status === "Delivered" || order.status === "Cancelled")) { %>
+                        <% if (!( order.status === "Cancelled" || order.status === "Delivered")) { %>
                             <td class="text-danger">
                                 <a href="#" onclick="showCancelConfirmationModal('<%= order._id %>')" class="text-danger">Cancel Order</a>
+                            </td>
+                        <% } else if(order.status === "Delivered") { %>
+                            <td class="text-danger">
+                                <a href="#"  class="text-danger h6">Return Order</a>
                             </td>
                         <% } %>
                     <% } %>

@@ -64,8 +64,89 @@ const loadHome = async ( req , res ) => {
             sales ,
             month ,
             Sales , 
-            Revenue
+            Revenue 
         })
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const calculateTopSellingProducts = async ( req , res ) => {
+    try {
+        const topProducts = await Order.aggregate([
+            { $unwind: '$products' },
+            {
+                $group: {
+                    _id: '$products.productId',
+                    totalSold: { $sum: '$products.quantity' }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
+            { $unwind: '$product' },
+            {
+                $project: {
+                    _id: 0,
+                    productId: '$_id',
+                    name: '$product.name',
+                    totalSold: 1
+                }
+            },
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 }
+        ]);
+
+        res.render('top-products' , { topProducts })
+    } catch (error) {
+        throw error;
+    }
+}
+
+const calculateTopSellingCategory = async ( req , res ) => {
+    try {
+        const topCategory = await Order.aggregate([
+            { $unwind : '$products' } ,
+            {
+                $lookup : {
+                    from : 'products' ,
+                    localField : 'products.productId' ,
+                    foreignField : '_id' ,
+                    as : 'productDetails'
+                }
+            } ,
+            { $unwind: '$productDetails' },
+            {
+                $group: {
+                    _id: '$productDetails.category',
+                    totalSold: { $sum: '$products.quantity' }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'categoryDetails'
+                }
+            } ,
+            { $unwind : '$categoryDetails' } ,
+            {
+                $project : {
+                    categoryName : '$categoryDetails.name' ,
+                    totalSold : 1
+                }
+            } , 
+            { $sort : { totalSold : -1 } }
+        ])  
+        
+        res.render('top-category' , { topCategory })
+
     } catch (error) {
         console.log(error.message);
     }
@@ -106,32 +187,45 @@ const getSalesReport = async ( req , res ) => {
     }
 }
 
+
 const downloadSalesReport = async (req, res) => {
     try {
         let { fromDate, toDate } = req.body;
         fromDate = new Date(fromDate);
         toDate = new Date(toDate);
         
-        const salesData = await Order.find({ status: "Delivered" }).populate('products.productId')
+        const salesData = await Order.find({ status: "Delivered" }).populate('products.productId');
         
         var filename = "orders_" + fromDate.toISOString() + "_" + toDate.toISOString() + ".pdf";
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", 'attachment; filename="' + filename + '"');
         
         const doc = new PDFDocument();
-        doc.text("#", { align: "center" });
-        doc.text("DATE", { align: "center" });
-        doc.text("PRODUCT", { align: "center" });
-        doc.text("QUANTITY", { align: "center" });
-        doc.text("PRICE", { align: "center" });
-        doc.text("PAYMENT METHOD", { align: "center" });
-        doc.text("TOTAL AMOUNT", { align: "center" });
-
-        salesData.forEach((sale, index) => {
+        doc.pipe(res);
+        
+        // Set up table properties
+        const tableTop = 100;
+        const rowHeight = 30;
+        const colWidth = (doc.page.width - 100) / 6; // Adjusted width
+        
+        // Draw table headers
+        doc.fontSize(12);
+        doc.text("#", 50, tableTop);
+        doc.text("DATE", 50 + colWidth, tableTop);
+        doc.text("PRODUCT", 50 + colWidth * 2, tableTop);
+        doc.text("QUANTITY", 50 + colWidth * 3, tableTop);
+        doc.text("PRICE", 50 + colWidth * 4, tableTop);
+        doc.text("PAYMENT METHOD", 50 + colWidth * 5, tableTop);
+        doc.text("TOTAL AMOUNT", 50 + colWidth * 6, tableTop);
+        
+        let rowIndex = 1;
+        let yPos = tableTop + rowHeight;
+        salesData.forEach((sale) => {
             var orderDate = new Date(sale.date);
             if (orderDate >= fromDate && orderDate <= toDate) {
-                doc.text((index + 1).toString(), { align: "center" });
-                doc.text(sale.date.toLocaleDateString(), { align: "center" });
+                // Draw table rows
+                doc.text(rowIndex.toString(), 50, yPos, { width: colWidth, height: rowHeight, align: 'center' });
+                doc.text(sale.date.toLocaleDateString(), 50 + colWidth, yPos, { width: colWidth, height: rowHeight, align: 'center' });
                 
                 let products = "";
                 let quantities = "";
@@ -143,18 +237,27 @@ const downloadSalesReport = async (req, res) => {
                     prices += product.price + "\n";
                 });
 
-                doc.text(products, { align: "center" });
-                doc.text(quantities, { align: "center" });
-                doc.text(prices, { align: "center" });
+                doc.text(products, 50 + colWidth * 2, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
+                doc.text(quantities, 50 + colWidth * 3, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
+                doc.text(prices, 50 + colWidth * 4, yPos, { width: colWidth, height: rowHeight, align: 'center' });
 
-                doc.text(sale.payment, { align: "center" });
-                doc.text(sale.amount, { align: "center" });
+                doc.text(sale.payment, 50 + colWidth * 5, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
+                doc.text(sale.amount, 50 + colWidth * 6, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
 
-                doc.moveDown();
+                yPos += rowHeight;
+                rowIndex++;
             }
         });
 
-        doc.pipe(res);
+        // Draw table lines
+        doc.moveTo(50, tableTop).lineTo(50 + colWidth * 7, tableTop).stroke(); // Top horizontal line
+        for (let i = 1; i <= rowIndex; i++) {
+            doc.moveTo(50, tableTop + i * rowHeight).lineTo(50 + colWidth * 7, tableTop + i * rowHeight).stroke(); // Horizontal lines
+        }
+        for (let j = 1; j < 7; j++) {
+            doc.moveTo(50 + j * colWidth, tableTop).lineTo(50 + j * colWidth, tableTop + rowIndex * rowHeight).stroke(); // Vertical lines
+        }
+
         doc.end();
     } catch (error) {
         console.log(error.message);
@@ -162,8 +265,12 @@ const downloadSalesReport = async (req, res) => {
 };
 
 
+
+
 module.exports = {
     loadHome ,
+    calculateTopSellingProducts ,
+    calculateTopSellingCategory ,
     getSalesReport , 
     downloadSalesReport
 }

@@ -8,6 +8,8 @@ const homeController = require ( "../../controllers/admin/adminhomeController" )
 const auth = require('../../middleware/adminAuth')
 
 admin_Route.get ( "/admin" , auth.isLogin , homeController.loadHome)
+admin_Route.get('/topProducts' , homeController.calculateTopSellingProducts )
+admin_Route.get('/topCategory' , homeController.calculateTopSellingCategory )
 admin_Route.post ("/salesReport" ,homeController.getSalesReport)
 admin_Route.post('/downloadPdf' , homeController.downloadSalesReport )
 

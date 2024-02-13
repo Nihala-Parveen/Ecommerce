@@ -67,6 +67,7 @@ const postOrder = async (req, res) => {
             }
             res.send({ codsuccess: true, cod: true });
         } else if (payment === "onlinePayment") {
+            await Order.updateOne({ _id: orderData._id }, { $set: { payment : "Online Payment" } })
             var instance = new Razorpay({
                 key_id: process.env.KEY_ID,
                 key_secret: process.env.KEY_SECRET
@@ -94,7 +95,7 @@ const verifyPayment = async ( req , res ) => {
     try {
         const orderId = req.session.OrderId
         const userId = req.session.user_id
-        await Order.updateOne({ _id : orderId , user : userId } , { $set : { payment : "Online Payment" , status: "Placed" , paymentStatus : "Paid" }}) 
+        await Order.updateOne({ _id : orderId , user : userId } , { $set : { status: "Placed" , paymentStatus : "Paid" , 'products.$[].status': "Placed" , 'products.$[].paymentStatus': "Paid" }}) 
 
         const order = await Order.findById(orderId).populate('products.productId')
         for(orderProduct of order.products){
@@ -151,7 +152,7 @@ const viewOrder = async ( req , res ) => {
 const cancelOrder = async ( req , res ) => {
     try {
         const { id } = req.query
-        await Order.findByIdAndUpdate(id , { $set : { status : "Cancelled"}})
+        await Order.findByIdAndUpdate(id , { $set : { status : "Cancelled" , 'products.$[].status': "Cancelled"}})
         const order = await Order.findById(id).populate('products.productId')
         for(orderProduct of order.products){
             const product = await Product.findById(orderProduct.productId)
@@ -164,11 +165,41 @@ const cancelOrder = async ( req , res ) => {
     }
 }
 
+const cancelOrderItem = async (req, res) => {
+    try {
+        const { orderId, itemId } = req.query;
+
+        console.log('orderId:', orderId);
+        console.log('itemId:', itemId);
+
+        await Order.findOneAndUpdate(
+            { _id: orderId, "products._id": itemId },
+            { $set: { "products.$.status": "Cancelled" }}
+        );
+
+        const order = await Order.findById(orderId).populate('products.productId');
+
+        console.log('order:', order);
+
+        const allItemsCancelled = order.products.every(product => product.status === 'Cancelled');
+
+        if (allItemsCancelled) {
+            await Order.findByIdAndUpdate(orderId, { $set: { status: 'Cancelled' }});
+        }
+        
+        res.status(200).json({ message: 'Item successfully cancelled' });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
 module.exports = {
     postOrder , 
     orderSuccess ,
     getOrders ,
     viewOrder ,
     cancelOrder , 
-    verifyPayment
+    verifyPayment ,
+    cancelOrderItem
 }

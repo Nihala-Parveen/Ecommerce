@@ -18,10 +18,14 @@
                             <div class="form-group"> 
                                 <label for="status" class="col-sm-2 control-label">Change Status</label> 
                                 <div class="col-sm-9"> <select name="status" id="" class="form-control" required>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Processing">Processing</option>    
+                                    <option value="<%= order.status %>"><%= order.status %></option>
+                                    <% if (order.status === "Placed") { %>
+                                    <option value="Processing">Processing</option>  
+                                    <% } else if (order.status === "Processing") { %>  
                                     <option value="Shipped">Shipped</option> 
+                                    <% } else if (order.status === "Shipped") { %>  
                                     <option value="Delivered">Delivered</option> 
+                                    <% } %>
                                 </select></div> 
                             </div> 
                             

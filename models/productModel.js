@@ -34,7 +34,7 @@ const productSchema = mongoose.Schema ( {
     isDeleted : {
         type : Boolean , 
         default : false
-    }
+    } 
 })
 
 module.exports = mongoose.model ("Product" , productSchema )
