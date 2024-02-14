@@ -1,12 +1,7 @@
 const express = require ('express')
 const order_Route = express()
-const bodyParser = require ('body-parser')
 
-order_Route.set ('view engine','ejs')
 order_Route.set ('views','./views/admin')
-
-order_Route.use ( bodyParser.json() )
-order_Route.use ( bodyParser.urlencoded ( {extended : true}))
 
 const orderController = require ( "../../controllers/admin/orderController" )
 const auth = require('../../middleware/adminAuth')

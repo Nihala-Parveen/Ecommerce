@@ -1,12 +1,7 @@
 const express = require ('express')
 const productRoute = express()
-const bodyParser = require ('body-parser')
 
-productRoute.set ('view engine','ejs')
 productRoute.set ('views','./views/users')
-
-productRoute.use ( bodyParser.json() )
-productRoute.use ( bodyParser.urlencoded ( { extended : true }))
 
 const productController = require ('../../controllers/user/productController')
 const auth = require('../../middleware/userAuth')

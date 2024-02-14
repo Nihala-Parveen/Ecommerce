@@ -1,6 +1,5 @@
 const express = require ('express')
 const user_Route = express()
-const bodyParser = require('body-parser')
 const session = require('express-session')
 
 user_Route.use ( session ( {
@@ -14,10 +13,6 @@ user_Route.use ( ( req , res , next ) => {
     next()
 })
 
-user_Route.use ( bodyParser.json() )
-user_Route.use ( bodyParser.urlencoded ({extended : true }))
-
-user_Route.set ('view engine','ejs')
 user_Route.set ('views','./views/users')
 
 const loginController = require ( "../../controllers/user/loginController" )

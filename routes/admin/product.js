@@ -1,12 +1,7 @@
 const express = require ('express')
 const product_Route = express()
-const bodyParser = require ('body-parser')
 
-product_Route.set ('view engine','ejs')
 product_Route.set ('views','./views/admin')
-
-product_Route.use ( bodyParser.json() )
-product_Route.use ( bodyParser.urlencoded ( {extended : true}))
 
 const productController = require ( "../../controllers/admin/productController" )
 const fileupload = require ("../../middleware/uploadFile")

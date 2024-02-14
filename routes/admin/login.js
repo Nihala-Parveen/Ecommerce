@@ -1,6 +1,5 @@
 const express = require ('express')
 const admin_Route = express()
-const bodyParser = require ('body-parser')
 const session = require("express-session")
 
 admin_Route.use ( session ( {
@@ -9,11 +8,7 @@ admin_Route.use ( session ( {
     saveUninitialized : true
 }))
 
-admin_Route.set ('view engine','ejs')
 admin_Route.set ('views','./views/admin')
-
-admin_Route.use ( bodyParser.json() )
-admin_Route.use ( bodyParser.urlencoded ( {extended : true}))
 
 const loginController = require ( "../../controllers/admin/adminloginController" )
 

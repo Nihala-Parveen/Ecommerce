@@ -66,32 +66,32 @@
                   </a>
                 </li>
                 <% let subtotal=0 %>
-                <% let allInStock = true %>
-                  <% carts.products.forEach((cart)=> { %>
-                    <% const total=cart.productId.price * cart.quantity %>
-                      <% subtotal +=total %>
-                        <li>
-                          <a href="#">
-                            <%= cart.productId.name %>
-                            <% if(cart.productId.stock === 0){ %> 
-                              <% allInStock = false %>
-                              <span class="text-danger">Out of stock</span>
-                            <% } else { %>
-                              <span class="middle">x <%= cart.quantity %></span>
-                              <span class="last">₹<%= total %></span>
-                            <% } %>
-                          </a>
-                        </li>
-                        <% }) %>
+                  <% let allInStock=true %>
+                    <% carts.products.forEach((cart)=> { %>
+                      <% const total=cart.productId.price * cart.quantity %>
+                        <% subtotal +=total %>
+                          <li>
+                            <a href="#">
+                              <%= cart.productId.name %>
+                                <% if(cart.productId.stock===0){ %>
+                                  <% allInStock=false %>
+                                    <span class="text-danger">Out of stock</span>
+                                    <% } else { %>
+                                      <span class="middle">x <%= cart.quantity %></span>
+                                      <span class="last">₹<%= total %></span>
+                                      <% } %>
+                            </a>
+                          </li>
+                          <% }) %>
               </ul>
-              <% if(allInStock){ %> 
-              <ul class="list list_2">
-                <li>
-                  <a href="#">Subtotal
-                    <span>₹<%= subtotal %></span>
-                  </a>
-                </li>
-                <!-- <li>
+              <% if(allInStock){ %>
+                <ul class="list list_2">
+                  <li>
+                    <a href="#">Subtotal
+                      <span>₹<%= subtotal %></span>
+                    </a>
+                  </li>
+                  <!-- <li>
                   <a href="#">Shipping
                     <span>Flat rate: $50.00</span>
                   </a>
@@ -101,43 +101,48 @@
                     <span>$2210.00</span>
                   </a>
                 </li> -->
-              </ul>
-              
-              <div class="payment_item">
-                <div class="radion_btn">
-                  <input type="radio" id="f-option5" name="payment" value="COD" />
-                  <label for="f-option5">Cash on Delivery</label>
-                  <div class="check"></div>
-                </div>
-
-              </div>
-
-              <div class="payment_item active">
-                <div class="radion_btn">
-                  <input type="radio" id="f-option6" name="payment" value="onlinePayment" />
-                  <label for="f-option6">Online Payment </label>
-                  <div class="check"></div>
-                </div>
-              </div>
-
-              <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
-              <input type="hidden" name="amount" value="<%= subtotal %>">
-              
-              <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
-              <% if (errorMessages && errorMessages.length > 0) { %>
-                <ul>
-                    <% errorMessages.forEach((message) => { %>
-                      <% console.log(message) %>
-                        <li><h1><%= message %></h1></li>
-                    <% }) %>
                 </ul>
-            <% } %>
-            
-              <% } else { %>
-                <p class="pl-5 pt-5 text-danger">Products Out of stock</p>
-              <% } %>
+
+                <div class="payment_item">
+                  <div class="radion_btn">
+                    <input type="radio" id="f-option5" name="payment" value="COD" />
+                    <label for="f-option5">Cash on Delivery</label>
+                    <div class="check"></div>
+                  </div>
+
+                </div>
+
+                <div class="payment_item active">
+                  <div class="radion_btn">
+                    <input type="radio" id="f-option6" name="payment" value="onlinePayment" />
+                    <label for="f-option6">Online Payment </label>
+                    <div class="check"></div>
+                  </div>
+                </div>
+
+                <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
+                <input type="hidden" name="amount" value="<%= subtotal %>">
+
+                <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
+                <% if (errorMessages && errorMessages.length> 0) { %>
+                  <ul>
+                    <% errorMessages.forEach((message)=> { %>
+                      <% console.log(message) %>
+                        <li>
+                          <h1>
+                            <%= message %>
+                          </h1>
+                        </li>
+                        <% }) %>
+                  </ul>
+                  <% } %>
+
+                    <% } else { %>
+                      <p class="pl-5 pt-5 text-danger">Products Out of stock</p>
+                      <% } %>
             </div>
-            <span id="maxStock" class="text-danger" style="display: none;">Some products are out of stock or the quantity exceeds available stock.</span>
+            <span id="maxStock" class="text-danger" style="display: none;">Some products are out of stock or the
+              quantity exceeds available stock.</span>
           </div>
           </form>
         </div>
@@ -150,21 +155,21 @@
       event.preventDefault();
 
       const products = JSON.parse(document.querySelector('input[name="products"]').value);
-  let allProductsInStock = true;
-const maxStockError = document.getElementById('maxStock')
-  products.forEach(product => {
-    if (product.productId.stock < product.quantity) {
-      allProductsInStock = false;
-      return; 
-    }
-  });
+      let allProductsInStock = true;
+      const maxStockError = document.getElementById('maxStock')
+      products.forEach(product => {
+        if (product.productId.stock < product.quantity) {
+          allProductsInStock = false;
+          return;
+        }
+      });
 
-  if (!allProductsInStock) {
-    maxStockError.style.display = 'inline'
-    alert("Some products are out of stock or the quantity exceeds available stock.");
-    return;
-  }
-  
+      if (!allProductsInStock) {
+        maxStockError.style.display = 'inline'
+        alert("Some products are out of stock or the quantity exceeds available stock.");
+        return;
+      }
+
       fetch("/confirmorder", {
         method: 'POST',
         body: new URLSearchParams(new FormData(event.target)),

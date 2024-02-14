@@ -1,11 +1,6 @@
 const express = require ('express')
 const user_Route = express()
-const bodyParser = require('body-parser')
 
-user_Route.use (bodyParser.json())
-user_Route.use (bodyParser.urlencoded ({ extended : true }))
-
-user_Route.set ('view engine','ejs')
 user_Route.set ('views','./views/users')
 
 const accountController = require ( "../../controllers/user/accountController" )

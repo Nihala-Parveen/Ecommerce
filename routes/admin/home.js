@@ -1,7 +1,6 @@
 const express = require ('express')
 const admin_Route = express()
 
-admin_Route.set ('view engine','ejs')
 admin_Route.set ('views','./views/admin')
 
 const homeController = require ( "../../controllers/admin/adminhomeController" )

@@ -1,12 +1,7 @@
 const express = require('express')
 const cartRoute = express()
-const bodyParser = require('body-parser')
 
-cartRoute.set ('view engine','ejs')
 cartRoute.set ('views','./views/users')
-
-cartRoute.use (bodyParser.json())
-cartRoute.use (bodyParser.urlencoded({extended:true}))
 
 const cartController = require('../../controllers/user/cartController')
 const auth = require('../../middleware/userAuth')
