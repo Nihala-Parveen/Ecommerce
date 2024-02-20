@@ -15,14 +15,6 @@ app.use ( express.static ( __dirname + '/node_modules/cropperjs'))
 const home = require ('./routes/user/home')
 app.use('/', home)
 
-//about page route
-const about = require ('./routes/user/about')
-app.use('/', about)
-
-//contactUs page route
-const contactUs = require ('./routes/user/contactUs')
-app.use('/', contactUs)
-
 //user login route
 const login = require ('./routes/user/login')
 app.use('/', login)

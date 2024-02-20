@@ -27,7 +27,7 @@ const send = async (req , res) => {
     req.session.otpData = { otp , expires }
     console.log(otp);
     const mailOptions = {
-        from: 'nihalaparveen538@gmail.com', // sender address
+        from: process.env.SMTP_USER , // sender address
         to: req.body.email ,
         subject: "OTP Verification", // Subject line
         html: `<b>OTP for registration is ${otp}</b>`, // html body

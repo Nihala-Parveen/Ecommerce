@@ -32,13 +32,13 @@
                     <% if(productIndex === 0) { %>
                         <td rowspan="<%= order.products.length %>"><%= order.amount %></td>
                         <td rowspan="<%= order.products.length %>"><%= order.status %></td>
-                        <% if (!( order.status === "Cancelled" || order.status === "Delivered")) { %>
+                        <% if (!( order.status === "Cancelled" || order.status === "Delivered" || order.status === "Return Requested" || order.status === "Returned")) { %>
                             <td class="text-danger">
                                 <a href="#" onclick="showCancelConfirmationModal('<%= order._id %>')" class="text-danger">Cancel Order</a>
                             </td>
                         <% } else if(order.status === "Delivered") { %>
                             <td class="text-danger">
-                                <a href="#"  class="text-danger h6">Return Order</a>
+                                <a href="#" onclick="showReturnConfirmationModal('<%= order._id %>')" class="text-danger h6">Return Order</a>
                             </td>
                         <% } %>
                     <% } %>
@@ -70,6 +70,27 @@
     </div>
 </div>
 
+<!-- Confirmation Modal for Order Return -->
+<div class="modal fade" id="returnConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="returnConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnConfirmationModalLabel">Confirm Order Return</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to return this order?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="genric-btn success-border" data-dismiss="modal">Cancel</button>
+                <button type="button" class="genric-btn danger-border" id="returnConfirmBtn">Return Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     function showCancelConfirmationModal(orderId) {
     
@@ -78,6 +99,32 @@
     document.getElementById('cancelConfirmBtn').onclick = async function () {
         try {
             const response = await fetch('/cancelOrder?id=' + orderId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            window.location.href = '/orders';
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+}
+
+function showReturnConfirmationModal(orderId) {
+    
+    $('#returnConfirmationModal').modal('show');
+
+    document.getElementById('returnConfirmBtn').onclick = async function () {
+        try {
+            const response = await fetch('/returnOrder?id=' + orderId, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

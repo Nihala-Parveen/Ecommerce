@@ -22,5 +22,8 @@ user_Route.post ("/login" , loginController.verifyLogin)
 
 user_Route.get('/logout', loginController.logOut )
 
+user_Route.get('/forgetPassword' , loginController.getForgetPassword )
+user_Route.post('/forgetPassword' , loginController.forgetVerify )
+
 
 module.exports = user_Route

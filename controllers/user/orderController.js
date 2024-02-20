@@ -5,6 +5,11 @@ const Order = require('../../models/orderModel')
 const Cart = require('../../models/cartModel')
 const Product = require('../../models/productModel')
 
+var instance = new Razorpay({
+    key_id: process.env.KEY_ID,
+    key_secret: process.env.KEY_SECRET
+})
+
 const postOrder = async (req, res) => {
     try {
         const { userId, amount, payment } = req.body
@@ -69,10 +74,6 @@ const postOrder = async (req, res) => {
             res.send({ codsuccess: true, cod: true });
         } else if (payment === "onlinePayment") {
             await Order.updateOne({ _id: orderData._id }, { $set: { payment : "Online Payment" } })
-            var instance = new Razorpay({
-                key_id: process.env.KEY_ID,
-                key_secret: process.env.KEY_SECRET
-            })
 
             var options = {
                 amount: amount * 100,
@@ -166,6 +167,16 @@ const cancelOrder = async ( req , res ) => {
     }
 }
 
+const returnOrder = async ( req , res ) => {
+    try {
+        const { id } = req.query
+        await Order.findByIdAndUpdate ( id , { $set : { status : "Return Requested" , 'products.$[].status': "Return Requested"}})
+        res.status(200).json({ message: 'Order successfully returned' });
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 const cancelOrderItem = async (req, res) => {
     try {
         const { orderId, itemId } = req.query;
@@ -202,7 +213,6 @@ function createInvoice(invoice) {
         generateHeader(doc);
         generateCustomerInformation(doc, invoice);
         generateInvoiceTable(doc, invoice);
-        generateFooter(doc);
 
         doc.end();
         resolve(doc)
@@ -239,9 +249,9 @@ function createInvoice(invoice) {
       .font("Helvetica")
       .text("Invoice Date:", 50, customerInformationTop + 15)
       .text(invoice.date , 150, customerInformationTop + 15)
-      .text("Balance Due:", 50, customerInformationTop + 30)
+      .text("Order Id:", 50, customerInformationTop + 30)
       .text(
-        formatCurrency(invoice.subtotal - invoice.paid),
+        invoice.id,
         150,
         customerInformationTop + 30
       )
@@ -255,7 +265,7 @@ function createInvoice(invoice) {
           ", " +
           invoice.shipping.state +
           ", " +
-          invoice.shipping.country,
+          invoice.shipping.postal_code,
         300,
         customerInformationTop + 30
       )
@@ -274,9 +284,9 @@ function createInvoice(invoice) {
       invoiceTableTop,
       "Item",
       "Description",
-      "Unit Cost",
+      "Price",
       "Quantity",
-      "Line Total"
+      "Total"
     );
     generateHr(doc, invoiceTableTop + 20);
     doc.font("Helvetica");
@@ -289,9 +299,9 @@ function createInvoice(invoice) {
         position,
         item.item,
         item.description,
-        formatCurrency(item.amount / item.quantity),
+        item.amount,
         item.quantity,
-        formatCurrency(item.amount)
+        item.amount * item.quantity
       );
   
       generateHr(doc, position + 20);
@@ -305,61 +315,27 @@ function createInvoice(invoice) {
       "",
       "Subtotal",
       "",
-      formatCurrency(invoice.subtotal)
+      invoice.subtotal
     );
-  
-    const paidToDatePosition = subtotalPosition + 20;
-    generateTableRow(
-      doc,
-      paidToDatePosition,
-      "",
-      "",
-      "Paid To Date",
-      "",
-      formatCurrency(invoice.paid)
-    );
-  
-    const duePosition = paidToDatePosition + 25;
-    doc.font("Helvetica-Bold");
-    generateTableRow(
-      doc,
-      duePosition,
-      "",
-      "",
-      "Balance Due",
-      "",
-      formatCurrency(invoice.subtotal - invoice.paid)
-    );
-    doc.font("Helvetica");
   }
   
-  function generateFooter(doc) {
-    doc
-      .fontSize(10)
-      .text(
-        "Payment is due within 15 days. Thank you for your business.",
-        50,
-        780,
-        { align: "center", width: 500 }
-      );
-  }
   
   function generateTableRow(
     doc,
     y,
     item,
     description,
-    unitCost,
+    price,
     quantity,
-    lineTotal
+    Total
   ) {
     doc
       .fontSize(10)
       .text(item, 50, y)
       .text(description, 150, y)
-      .text(unitCost, 280, y, { width: 90, align: "right" })
+      .text(price, 280, y, { width: 90, align: "right" })
       .text(quantity, 370, y, { width: 90, align: "right" })
-      .text(lineTotal, 0, y, { align: "right" });
+      .text(Total, 0, y, { align: "right" });
   }
   
   function generateHr(doc, y) {
@@ -403,14 +379,14 @@ function createInvoice(invoice) {
             },
             items: orderData.products.map(product => ({
                 item: product.productId.name,
-                description: product.productId.description,
+                description: product.productId.description.slice(0,30)+"...",
                 quantity: product.quantity,
                 amount: product.price
             })),
             subtotal: orderData.amount,
-            paid: 0,
             date : orderData.date.toLocaleDateString('en-GB') ,
-            invoice_nr: invoiceNumber
+            invoice_nr: invoiceNumber ,
+            id : orderData._id
         };
 
         // Create the invoice and wait for it to be created
@@ -439,6 +415,7 @@ module.exports = {
     getOrders ,
     viewOrder ,
     cancelOrder , 
+    returnOrder ,
     verifyPayment ,
     cancelOrderItem ,
     downloadInvoice

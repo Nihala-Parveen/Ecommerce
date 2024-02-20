@@ -44,8 +44,28 @@ const logOut = async (req,res) => {
     }
 }
 
+//forget password
+
+const getForgetPassword = async ( req , res ) => {
+    try {
+        res.render('forgetPassword')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const forgetVerify = async ( req , res ) => {
+    try {
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 module.exports = {
     loginLoad , 
     verifyLogin ,
-    logOut
+    logOut ,
+    getForgetPassword ,
+    forgetVerify
 }

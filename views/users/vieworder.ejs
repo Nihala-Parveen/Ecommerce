@@ -23,9 +23,11 @@
                 <div class="col-md-6">
                     <h4>Items in this order</h4>
                 </div>
-                <div class="col-md-6 text-md-right">
-                    <button onclick="downloadInvoice('<%= orders._id %>')" class="genric-btn success-border medium">Download Invoice</button>
-                </div>
+                <% if(orders.status === "Delivered") { %>
+                    <div class="col-md-6 text-md-right">
+                        <button onclick="downloadInvoice('<%= orders._id %>')" class="genric-btn success-border medium">Download Invoice</button>
+                    </div>
+                <% } %>
             </div>
             <table class="table mt-5">
                 <thead>
