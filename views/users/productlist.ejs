@@ -1,15 +1,27 @@
 <%- include('../layouts/header.ejs') %>
+<style>
+    .hidden-button {
+        border: none;
+        background: transparent;
+    }
+</style>
 <section class="p-4">
     <div class="container">
         <div class="row">
             <% products.forEach((product) => { %>
                 <a href="/productdetails?id=<%= product._id %>">
             <div class="col-md-3 p-3">
-                <div class="card" style="width: 15rem; height: 27rem;">
+                <div class="card position-relative" style="width: 15rem; height: 27rem;">
                     <img src="/uploads/<%= product.images[0] %>" alt="catimg" height="300px" width="250px" class="card-img-top zoomable-image">
+                    <div class="d-flex justify-content-end position-absolute" style="top: 0; right: 0;">
+                    <form action="/addToWishlist" method="POST">
+                        <input type="hidden" name="productId" value="<%= product._id %>">
+                        <button type="submit" class="hidden-button"><i class="fas fa-heart text-danger"></i></button>
+                    </form>
+                </div>
                     <div class="card-body">
                         <h5><%= product.name %></h5>
-                        <p><span>$<%= product.price %></span></p>
+                        <p><span>₹<%= product.price %></span></p>
                         <!-- <a href="/addtocart" class="genric-btn success-border">Add to Cart</a> -->
                         <form action="/addtocart" method="POST">
                             <input type="hidden" name="productId" value="<%= product._id %>">

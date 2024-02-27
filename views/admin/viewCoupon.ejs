@@ -1,0 +1,41 @@
+<%- include('../layouts/adminhomeHeader.ejs') %>
+
+<div id="page-wrapper">
+    <div class="main-page">
+        <div class="tables">
+            <div class="table-responsive bs-example widget-shadow">
+                <h4>Coupons</h4>
+                <table class="table table-bordered"> 
+                    <thead> 
+                        <tr> 
+                            <th>#</th> 
+                            <th>Coupon Code</th> 
+                            <th>Description</th>
+                            <th>Discount Amount</th> 
+                            <th>Minimum Amount</th>
+                            <th>Expiry Date</th> 
+                            <th></th>
+                        </tr> 
+                    </thead> 
+                    <tbody>
+                        <% coupons.forEach((coupon,index) => { %> 
+                        <tr> 
+                            <th scope="row"><%= index+1 %></th> 
+                            <td><%= coupon.couponCode %></td> 
+                            <td><%= coupon.description %></td>
+                            <td><%= coupon.discountAmount %></td> 
+                            <td><%= coupon.minAmount %></td> 
+                            <td><%= coupon.expiryDate.toLocaleDateString('en-GB') %></td>
+                            <td><a href="/deleteCoupon?id=<%= coupon._id %>" class="text-danger padding-5"><i class="fa fa-trash-o"></i></a></td>
+                        </tr> 
+                        <% }) %>
+                    </tbody> 
+                </table> 
+                
+                <button type = "submit" class = "btn btn-success"><a href="/addCoupon" class="text-white">Add New Coupon</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/adminFooter.ejs') %>

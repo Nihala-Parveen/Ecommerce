@@ -126,10 +126,45 @@ const loadCheckout = async ( req , res ) => {
     }
 }
 
+const viewWishlist = async ( req , res ) => {
+    try {
+        const userId = req.session.user_id
+        const wishlistData = await User.findOne({ _id : userId }).populate('wishlist.products')
+        res.render('wishlist' , { wishlistData })
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const addToWishlist = async ( req , res ) => {
+    try {
+        const { productId } = req.body
+        const userId = req.session.user_id; 
+        await User.findOneAndUpdate({ _id : userId } , { $addToSet : { wishlist : { products : productId }}})
+        res.redirect('/wishlist')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const removeWishlist = async ( req , res ) => {
+    try {
+        const userId = req.session.user_id; 
+        const { productId } = req.query
+        await User.findByIdAndUpdate(userId , { $pull : { wishlist : { products : productId }}})
+        res.redirect('/wishlist')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 module.exports = {
     addtoCart , 
     viewcart ,
     removecart , 
     loadCheckout ,
-    updateQuantity
+    updateQuantity , 
+    viewWishlist ,
+    addToWishlist ,
+    removeWishlist
 }

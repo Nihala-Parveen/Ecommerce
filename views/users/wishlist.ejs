@@ -1,0 +1,45 @@
+<%- include('../layouts/header.ejs') %>
+<section class="p-5">
+    <div class="container">
+        <nav aria-label="breadcrumb" style="background-color: white;" class="mb-5">
+            <ol class="breadcrumb mt-3">
+              <li class="breadcrumb-item"><a href="/home">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
+            </ol>
+          </nav>
+      <div class="cart_inner">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Price</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+                <% wishlistData.wishlist.forEach((item) => { %>
+              <tr>
+                <td>
+                  <div class="media">
+                    <div class="d-flex">
+                      <img src="/uploads/<%= item.products.images[0] %>" alt="img" />
+                    </div>
+                    <div class="media-body">
+                      <a href="/productdetails?id=<%= item.products._id %>"><p><%= item.products.name %></p></a>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <h5>₹<%= item.products.price %></h5>
+                </td>
+                <td><a href="/removeWishlist?productId=<%= item.products._id %>" class="text-danger"><i class="fa fa-trash "></i></a></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </section>
+
+  <%- include('../layouts/footer.ejs') %>

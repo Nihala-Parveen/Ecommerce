@@ -13,4 +13,8 @@ cartRoute.get('/removecart' , cartController.removecart )
 
 cartRoute.get('/checkout' , cartController.loadCheckout )
 
+cartRoute.get('/wishlist' , auth.isLogin , cartController.viewWishlist )
+cartRoute.post('/addToWishlist' , cartController.addToWishlist )
+cartRoute.get('/removeWishlist' , cartController.removeWishlist )
+
 module.exports = cartRoute

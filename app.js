@@ -7,6 +7,7 @@ const app = express()
 require('dotenv').config()
 
 app.set ('view engine','ejs')
+app.use ( express.json() )
 app.use ( express.urlencoded ( { extended : true } ) )
 app.use ( express.static ( __dirname + '/public') )
 app.use ( express.static ( __dirname + '/node_modules/cropperjs'))
@@ -70,5 +71,9 @@ app.use('/' , order )
 //admin order route
 const adminOrder = require('./routes/admin/order')
 app.use('/' , adminOrder )
+
+//admin coupon route
+const adminCoupon = require('./routes/admin/coupon')
+app.use('/', adminCoupon )
 
 app.listen (3000 , () => console.log("Server started at port 3000"))

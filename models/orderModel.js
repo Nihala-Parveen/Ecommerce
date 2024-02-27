@@ -42,7 +42,7 @@ const orderSchema = mongoose.Schema ( {
         required : true
     } ,
     payment : {
-        type: String
+        type: String 
     },
     paymentStatus: {
         type: String,
@@ -52,7 +52,7 @@ const orderSchema = mongoose.Schema ( {
         type: String,
         default: 'Pending',
         required: true
-    }
+    } 
 },
     {
         timestamps: true,

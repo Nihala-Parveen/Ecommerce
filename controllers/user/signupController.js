@@ -77,6 +77,7 @@ const insertUser = async (req, res) => {
 
 module.exports = {
     loadRegister ,
+    securePassword ,
     validateSignup ,
     insertUser
 }

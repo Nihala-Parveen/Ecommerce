@@ -9,16 +9,7 @@
           <li class="breadcrumb-item active" aria-current="page">Checkout</li>
         </ol>
       </nav>
-      <!-- <div class="cupon_area">
-        <div class="check_title">
-          <h2>
-            Have a coupon?
-            <a href="#">Click here to enter your code</a>
-          </h2>
-        </div>
-        <input type="text" placeholder="Enter coupon code" />
-        <a class="tp_btn" href="#">Apply Coupon</a>
-      </div> -->
+      
       <div class="billing_details">
         <div class="row">
           <div class="col-lg-8">
@@ -88,7 +79,7 @@
                 <ul class="list list_2">
                   <li>
                     <a href="#">Subtotal
-                      <span>₹<%= subtotal %></span>
+                      <span id="subtotal">₹<%= subtotal %></span>
                     </a>
                   </li>
                   <!-- <li>
@@ -102,7 +93,12 @@
                   </a>
                 </li> -->
                 </ul>
-
+                <div class="cupon_area">
+                  <form class="row contact_form" id="submitForm">
+                  <input type="text" id="couponCode" placeholder="Enter coupon code"/>
+                  <button id="applyCoupon" class="genric-btn success-border medium ml-5" type="submit">Apply Coupon</button>
+                </form>
+                </div>
                 <div class="payment_item">
                   <div class="radion_btn">
                     <input type="radio" id="f-option5" name="payment" value="COD" />
@@ -153,6 +149,42 @@
   </section>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
+    document.getElementById('submitForm').addEventListener('click', function(event) {
+    event.preventDefault();
+
+    const couponCode = document.getElementById('couponCode').value;
+    console.log(couponCode);
+    if (!couponCode) {
+        alert('Please enter a coupon code');
+        return;
+    }
+    const subtotal = document.getElementById('subtotal').innerText; 
+    fetch('/applyCoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            code: couponCode,
+            subTotal: subtotal 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('subtotal').innerText = data.subTotal;
+            
+            alert('Coupon applied successfully!');
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+});
+
     document.addEventListener("DOMContentLoaded", function() {
     const subtotal = "<%= subtotal %>";
     const codOption = document.getElementById("f-option5");
@@ -232,7 +264,7 @@
       const data = {
         response,
         order
-      };
+      };  
 
       fetch('/verifyPayment', {
         method: 'POST',

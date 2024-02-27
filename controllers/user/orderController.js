@@ -4,11 +4,58 @@ const User = require('../../models/userModel')
 const Order = require('../../models/orderModel')
 const Cart = require('../../models/cartModel')
 const Product = require('../../models/productModel')
+const Coupon = require('../../models/couponModel')
 
 var instance = new Razorpay({
     key_id: process.env.KEY_ID,
     key_secret: process.env.KEY_SECRET
 })
+
+const applyCoupon = async ( req , res ) => {
+    try {
+        const userId = req.session.user_id
+        const { code , subTotal } = req.body
+        console.log(code);
+        const [ checkCoupon , couponStatus , usedCoupons ] = await Promise.all([
+            Coupon.findOne( { couponCode : code } ) ,
+            Coupon.findOne( { couponCode : code , status : "Active" }) ,
+            User.findById(userId)
+        ]) 
+        if(usedCoupons.usedCoupons.includes(code)){
+            return res.json({ success : false , message : "Coupon already used."})
+        }
+        console.log(subTotal);
+        if(checkCoupon) {
+            if(couponStatus){
+                const couponExp = checkCoupon.expiryDate
+                const date = new Date()
+                if(couponExp > date ){
+                    if(checkCoupon.minAmount && checkCoupon.minAmount <= subTotal ){
+                        const amount = checkCoupon.discountAmount
+                        const totalAmount = subTotal - amount
+
+                        User.usedCoupons.push()
+                        res.json({ success : true , subTotal : totalAmount })
+                    } else {
+                        res.json({ success :false , message : "Minimum amount not met."})
+                    }
+                } else {
+                    await Coupon.updateOne(
+                        { couponCode : code } ,
+                        { $set : { status : "Expired"}}
+                    )
+                    res.json({ success : false , message : "Coupon Expired"})
+                }
+            } else {
+                res.json({ success : false , message : "Coupon code not matching."})
+            }
+        } else { 
+            res.json({ success : false , message : "Coupon code not matching."})
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
 const postOrder = async (req, res) => {
     try {
@@ -93,6 +140,27 @@ const postOrder = async (req, res) => {
     }
 }
 
+const continuePayment = async ( req , res ) => {
+    try {
+        const { orderId } = req.body
+        const order = await Order.findById(orderId)
+        var options = {
+            amount: order.amount * 100,
+            currency: "INR",
+            receipt: "" + order._id
+        }
+        instance.orders.create(options, function (err, orders) {
+            if (err) {
+                console.log("error in Online Payment", err);
+            } else {
+                res.json({ success: true, order: orders })
+            }
+        })
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 const verifyPayment = async ( req , res ) => {
     try {
         const orderId = req.session.OrderId
@@ -130,10 +198,11 @@ const orderSuccess = async ( req , res ) => {
 const getOrders = async (req , res) => {
     try {
         const userId = req.session.user_id
+        const userData = await User.findById({_id:userId})
         const orderData = await Order.find({user : userId}).populate('products.productId').sort({ date : -1 })
 
         if(orderData){
-            res.render('orderdetails' , { orders : orderData })
+            res.render('orderdetails' , { orders : orderData , users:userData})
         } 
     } catch (error) {
         console.log(error.message);
@@ -410,12 +479,14 @@ function createInvoice(invoice) {
 
 
 module.exports = {
+    applyCoupon ,
     postOrder , 
     orderSuccess ,
     getOrders ,
     viewOrder ,
     cancelOrder , 
     returnOrder ,
+    continuePayment ,
     verifyPayment ,
     cancelOrderItem ,
     downloadInvoice

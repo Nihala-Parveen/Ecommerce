@@ -32,9 +32,14 @@
                     <% if(productIndex === 0) { %>
                         <td rowspan="<%= order.products.length %>"><%= order.amount %></td>
                         <td rowspan="<%= order.products.length %>"><%= order.status %></td>
-                        <% if (!( order.status === "Cancelled" || order.status === "Delivered" || order.status === "Return Requested" || order.status === "Returned")) { %>
+                        <% if (!( order.status === "Cancelled" || order.status === "Delivered" || order.status === "Return Requested" || order.status === "Returned" || order.status === "Pending")) { %>
                             <td class="text-danger">
                                 <a href="#" onclick="showCancelConfirmationModal('<%= order._id %>')" class="text-danger">Cancel Order</a>
+                            </td>
+                        <% } else if (order.payment === "Online Payment" && order.paymentStatus === "Pending") { %>
+                            <td class="text-danger">
+                                <a href="#" onclick="continuePayment('<%= order._id %>')" class="text-primary">Continue Payment</a><br>
+                                <a href="#" id="continuePayment" onclick="showCancelConfirmationModal('<%= order._id %>')" class="text-danger">Cancel Order</a>
                             </td>
                         <% } else if(order.status === "Delivered") { %>
                             <td class="text-danger">
@@ -90,7 +95,7 @@
         </div>
     </div>
 </div>
-
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     function showCancelConfirmationModal(orderId) {
     
@@ -143,6 +148,79 @@ function showReturnConfirmationModal(orderId) {
         }
     };
 }
+
+function continuePayment(orderId) {
+        fetch("/continuePayment", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ orderId: orderId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            razorPayment(data.order);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+function razorPayment(order) {
+      var options = {
+        "key": "rzp_test_GSZimvTeuWT26L",
+        "amount": order.amount,
+        "currency": "INR",
+        "name": "ShopEasy",
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        "order_id": order.id,
+        "handler": function (response) {
+          verifyPayment(response, orders._id)
+        },
+        "prefill": {
+          "name": "<%= users.name %>",
+          "email": "<%= users.email %>",
+          "contact": "<%= users.mobile %>"
+        },
+        "notes": {
+          "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+          "color": "#3399cc"
+        }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
+    }
+
+    function verifyPayment(response, order) {
+      const data = {
+        response,
+        order
+      };  
+
+      fetch('/verifyPayment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success === true) {
+            window.location.href = '/orderSuccess';
+          } else {
+            alert('Payment Failed!!');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while processing the payment.');
+        });
+    }
+
 
 </script>
 

@@ -38,9 +38,22 @@ const userSchema = new mongoose.Schema({
             required : true
         } ,
     }],
+    wishlist : [ {
+        products : {
+            type : mongoose.Types.ObjectId ,
+            ref : 'Product'
+        }
+    } ] ,
     isBlocked : {
         type : Boolean , 
         default : false
-    }
+    } ,
+    token : {
+        type : String ,
+        default : ''
+    } ,
+    usedCoupons : [ {
+        type : String
+    }]
 })
 module.exports = mongoose.model ('User', userSchema)

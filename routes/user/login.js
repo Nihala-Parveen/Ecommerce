@@ -25,5 +25,7 @@ user_Route.get('/logout', loginController.logOut )
 user_Route.get('/forgetPassword' , loginController.getForgetPassword )
 user_Route.post('/forgetPassword' , loginController.forgetVerify )
 
+user_Route.get('/resetPassword' , loginController.getResetPassword )
+user_Route.post('/resetPassword' , loginController.resetPassword )
 
 module.exports = user_Route
