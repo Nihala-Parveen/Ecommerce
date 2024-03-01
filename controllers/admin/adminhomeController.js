@@ -1,4 +1,5 @@
 const PDFDocument = require('pdfkit')
+const ExcelJs = require('exceljs')
 const User = require('../../models/userModel')
 const Product = require('../../models/productModel')
 const Order = require('../../models/orderModel') 
@@ -187,76 +188,112 @@ const getSalesReport = async ( req , res ) => {
     }
 }
 
+const getCustomDateSales = async ( req , res ) => {
+    try {
+        let { fromDate , toDate } = req.body
+        fromDate = new Date(fromDate)
+        toDate = new Date(toDate)
+        const salesData = await Order.find({
+            status : "Delivered" ,
+            date : {
+                $gte : fromDate ,
+                $lte : toDate
+            }
+        }).populate("products.productId")
+
+        res.render("salesReport" , { salesData , fromDate , toDate })
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 
 const downloadSalesReport = async (req, res) => {
     try {
         let { fromDate, toDate } = req.body;
         fromDate = new Date(fromDate);
         toDate = new Date(toDate);
-        
-        const salesData = await Order.find({ status: "Delivered" }).populate('products.productId');
-        
+
+        const salesData = await Order.find({ status: "Delivered" }).populate('user').populate('products.productId');
+
         var filename = "orders_" + fromDate.toISOString() + "_" + toDate.toISOString() + ".pdf";
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", 'attachment; filename="' + filename + '"');
-        
+
         const doc = new PDFDocument();
         doc.pipe(res);
-        
-        // Set up table properties
-        const tableTop = 100;
-        const rowHeight = 30;
-        const colWidth = (doc.page.width - 100) / 6; // Adjusted width
-        
-        // Draw table headers
+        doc.text("SALES REPORT", { align: "center", fontSize: 20, bold: true });
         doc.fontSize(12);
-        doc.text("#", 50, tableTop);
-        doc.text("DATE", 50 + colWidth, tableTop);
-        doc.text("PRODUCT", 50 + colWidth * 2, tableTop);
-        doc.text("QUANTITY", 50 + colWidth * 3, tableTop);
-        doc.text("PRICE", 50 + colWidth * 4, tableTop);
-        doc.text("PAYMENT METHOD", 50 + colWidth * 5, tableTop);
-        doc.text("TOTAL AMOUNT", 50 + colWidth * 6, tableTop);
-        
-        let rowIndex = 1;
-        let yPos = tableTop + rowHeight;
-        salesData.forEach((sale) => {
-            var orderDate = new Date(sale.date);
-            if (orderDate >= fromDate && orderDate <= toDate) {
-                // Draw table rows
-                doc.text(rowIndex.toString(), 50, yPos, { width: colWidth, height: rowHeight, align: 'center' });
-                doc.text(sale.date.toLocaleDateString(), 50 + colWidth, yPos, { width: colWidth, height: rowHeight, align: 'center' });
-                
-                let products = "";
-                let quantities = "";
-                let prices = "";
+        const margin = 5;
+        doc
+            .moveTo(margin, margin)
+            .lineTo(600 - margin, margin)
+            .lineTo(600 - margin, 842 - margin)
+            .lineTo(margin, 842 - margin)
+            .lineTo(margin, margin)
+            .lineTo(600 - margin, margin)
+            .lineWidth(3)
+            .strokeColor("#000000")
+            .stroke();
 
-                sale.products.forEach((product) => {
-                    products += product.productId.name + "\n";
-                    quantities += product.quantity + "\n";
-                    prices += product.price + "\n";
-                });
+        doc.moveDown();
 
-                doc.text(products, 50 + colWidth * 2, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
-                doc.text(quantities, 50 + colWidth * 3, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
-                doc.text(prices, 50 + colWidth * 4, yPos, { width: colWidth, height: rowHeight, align: 'center' });
+        const headers = ["#", "USER", "DATE", "PAYMENT", "TOTAL"];
 
-                doc.text(sale.payment, 50 + colWidth * 5, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
-                doc.text(sale.amount, 50 + colWidth * 6, yPos, { width: colWidth, height: rowHeight, align: 'center' }); 
+        let headerX = 20;
+        const headerY = doc.y + 10;
 
-                yPos += rowHeight;
-                rowIndex++;
-            }
+        doc.text(headers[0], headerX, headerY)
+        headerX += 50
+
+        headers.slice(1).forEach((header) => {
+            doc.text(header, headerX, headerY);
+            headerX += 143;
         });
 
-        // Draw table lines
-        doc.moveTo(50, tableTop).lineTo(50 + colWidth * 7, tableTop).stroke(); // Top horizontal line
-        for (let i = 1; i <= rowIndex; i++) {
-            doc.moveTo(50, tableTop + i * rowHeight).lineTo(50 + colWidth * 7, tableTop + i * rowHeight).stroke(); // Horizontal lines
-        }
-        for (let j = 1; j < 7; j++) {
-            doc.moveTo(50 + j * colWidth, tableTop).lineTo(50 + j * colWidth, tableTop + rowIndex * rowHeight).stroke(); // Vertical lines
-        }
+        let dataY = headerY + 25;
+
+        let y = headerY + 15;
+
+        salesData.forEach((sale, index) => {
+            var orderDate = new Date(sale.date);
+            if (orderDate >= fromDate && orderDate <= toDate) {
+                doc.text(index + 1, 20, dataY)
+                doc.text(sale.user.name, 70, dataY)
+                doc.text(sale.date.toLocaleDateString(), 213, dataY)
+                doc.text(sale.payment, 358, dataY)
+                doc.text(sale.amount, 10, dataY, { align: 'right' })
+
+                dataY += 30
+                doc
+                    .moveTo(10, y)
+                    .lineTo(560, y)
+                    .lineWidth(1) 
+                    .strokeColor("#000000") 
+                    .stroke();
+
+                y = dataY - 10;
+
+            }
+        })
+
+        doc.moveTo(10, headerY - 10)
+            .lineTo(10, dataY)
+            .lineTo(560, dataY)
+            .lineTo(560, headerY - 10)
+            .lineTo(10, headerY - 10)
+            .lineWidth(1)
+            .stroke();
+
+        const xPositions = [50, 190, 320, 465];
+        xPositions.forEach((x) => {
+            doc
+                .moveTo(x, headerY - 10)
+                .lineTo(x, dataY)
+                .strokeColor("#000000")
+                .stroke();
+        });
 
         doc.end();
     } catch (error) {
@@ -264,13 +301,20 @@ const downloadSalesReport = async (req, res) => {
     }
 };
 
-
-
+const downloadExcelReport = async ( req , res ) => {
+    try {
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
 module.exports = {
     loadHome ,
     calculateTopSellingProducts ,
     calculateTopSellingCategory ,
     getSalesReport , 
-    downloadSalesReport
+    getCustomDateSales ,
+    downloadSalesReport ,
+    downloadExcelReport
 }

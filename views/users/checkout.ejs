@@ -94,7 +94,7 @@
                 </li> -->
                 </ul>
                 <div class="cupon_area">
-                  <form class="row contact_form" id="submitForm">
+                  <form class="row contact_form" id="couponSubmit">
                   <input type="text" id="couponCode" placeholder="Enter coupon code"/>
                   <button id="applyCoupon" class="genric-btn success-border medium ml-5" type="submit">Apply Coupon</button>
                 </form>
@@ -149,7 +149,7 @@
   </section>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
-    document.getElementById('submitForm').addEventListener('click', function(event) {
+    document.getElementById('couponSubmit').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const couponCode = document.getElementById('couponCode').value;
@@ -159,6 +159,7 @@
         return;
     }
     const subtotal = document.getElementById('subtotal').innerText; 
+    console.log(subtotal);
     fetch('/applyCoupon', {
         method: 'POST',
         headers: {

@@ -112,6 +112,9 @@ const getResetPassword = async ( req , res ) => {
 const resetPassword = async ( req , res ) => {
     try {
         const { password ,cpassword ,  user_id } = req.body
+        if(password === "" || cpassword === ""){
+            return res.render('resetPassword' , { message : "Please fill out all the fields" , user_id })
+        }
         if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)){
             return res.render('resetPassword' , { message : 'Password must be greater than 5 and contain atleast one uppercase letter, one number' , user_id })
         }

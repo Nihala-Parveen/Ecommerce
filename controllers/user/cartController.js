@@ -140,7 +140,10 @@ const addToWishlist = async ( req , res ) => {
     try {
         const { productId } = req.body
         const userId = req.session.user_id; 
-        await User.findOneAndUpdate({ _id : userId } , { $addToSet : { wishlist : { products : productId }}})
+        const existingProduct = await User.findOne({ _id : userId , "wishlist.products" : productId })
+        if(!existingProduct){
+            await User.findOneAndUpdate ( { _id : userId } , { $push : { wishlist : { products : productId }}})
+        }
         res.redirect('/wishlist')
     } catch (error) {
         console.log(error.message);

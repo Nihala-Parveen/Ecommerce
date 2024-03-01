@@ -11,47 +11,44 @@ var instance = new Razorpay({
     key_secret: process.env.KEY_SECRET
 })
 
-const applyCoupon = async ( req , res ) => {
+const applyCoupon = async (req, res) => {
     try {
         const userId = req.session.user_id
-        const { code , subTotal } = req.body
+        const { code, subTotal } = req.body
         console.log(code);
-        const [ checkCoupon , couponStatus , usedCoupons ] = await Promise.all([
-            Coupon.findOne( { couponCode : code } ) ,
-            Coupon.findOne( { couponCode : code , status : "Active" }) ,
-            User.findById(userId)
-        ]) 
-        if(usedCoupons.usedCoupons.includes(code)){
-            return res.json({ success : false , message : "Coupon already used."})
-        }
-        console.log(subTotal);
-        if(checkCoupon) {
-            if(couponStatus){
-                const couponExp = checkCoupon.expiryDate
-                const date = new Date()
-                if(couponExp > date ){
-                    if(checkCoupon.minAmount && checkCoupon.minAmount <= subTotal ){
-                        const amount = checkCoupon.discountAmount
-                        const totalAmount = subTotal - amount
 
-                        User.usedCoupons.push()
-                        res.json({ success : true , subTotal : totalAmount })
-                    } else {
-                        res.json({ success :false , message : "Minimum amount not met."})
-                    }
+        const user = await User.findById(userId)
+        if (user.usedCoupons.includes(code)) {
+            return res.json({ success: false, message: "Coupon already used." })
+        }
+
+        const coupon = await Coupon.findOne({ couponCode: code, status: "Active" })
+        console.log(subTotal);
+        if (coupon) {
+            const couponExp = coupon.expiryDate
+            const date = new Date()
+            if (couponExp > date) {
+                if (coupon.minAmount && coupon.minAmount <= subTotal) {
+                    const amount = coupon.discountAmount
+                    const totalAmount = subTotal - amount
+
+                    user.usedCoupons.push(code)
+                    await user.save()
+                    res.json({ success: true, subTotal: totalAmount })
                 } else {
-                    await Coupon.updateOne(
-                        { couponCode : code } ,
-                        { $set : { status : "Expired"}}
-                    )
-                    res.json({ success : false , message : "Coupon Expired"})
+                    res.json({ success: false, message: "Minimum amount not met." })
                 }
             } else {
-                res.json({ success : false , message : "Coupon code not matching."})
+                await Coupon.updateOne(
+                    { couponCode: code },
+                    { $set: { status: "Expired" } }
+                )
+                res.json({ success: false, message: "Coupon Expired" })
             }
-        } else { 
-            res.json({ success : false , message : "Coupon code not matching."})
+        } else {
+            res.json({ success: false, message: "Coupon code not matching." })
         }
+
     } catch (error) {
         console.log(error.message);
     }
@@ -106,7 +103,7 @@ const postOrder = async (req, res) => {
         req.session.OrderId = orderData._id
 
         if (payment === "COD") {
-            await Order.updateOne({ _id: orderData._id }, { $set: { payment: "COD" , status: "Placed" } })
+            await Order.updateOne({ _id: orderData._id }, { $set: { payment: "Cash on Delivery" , status: "Placed" } })
 
             for (const ordrProduct of orderProducts) {
                 const product = await Product.findById(ordrProduct.productId)

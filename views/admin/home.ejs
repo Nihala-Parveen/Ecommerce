@@ -63,12 +63,12 @@
                     <div class="col-md-6">
                         <h3>Monthly Sales</h3>
                     </div>
-                    <!-- <div class="col-md-6 text-right">
+                    <div class="col-md-6 text-right">
                         <form class="form-inline">
                             <input type="text" class="form-control" placeholder="Search">
                             <button type="submit" class="btn btn-primary">Search</button>
                         </form>
-                    </div> -->
+                    </div>
                 </div>
             </div>
             
@@ -106,7 +106,6 @@
             
             <div class="form-body">
                 <form class="form-horizontal" action="/salesReport" method="POST"> 
-                    
                     <div class="form-group"> 
                         <label for="category" class="col-sm-2 control-label">View Sales</label> 
                         <div class="col-sm-9"> <select name="timeRange" id="" class="form-control">                                
@@ -114,17 +113,32 @@
                                     <option value="weekly">Weekly</option>
                                     <option value="yearly">Yearly</option>
                         </select></div> 
-                    </div> 
-                    
-                    
-                    
-                    
+                    </div>                                                                            
                     <div class="col-sm-offset-2"> 
-                        <button type="submit" class="btn btn-default">Sumbitt</button> 
+                        <button type="submit" class="btn btn-default">Sumbit</button> 
                     </div> 
-                </form> 
-                
+                </form>                
             </div>
+            <div class="form-body">
+                <form class="form-horizontal" action="/dateSales" method="POST"> 
+                    <div class="form-group"> 
+                        <label for="startDate" class="col-sm-2 control-label">Start Date</label> 
+                        <div class="col-sm-9">
+                            <input type="date" name="fromDate" class="form-control">
+                        </div> 
+                    </div>
+                    <div class="form-group"> 
+                        <label for="endDate" class="col-sm-2 control-label">End Date</label> 
+                        <div class="col-sm-9">
+                            <input type="date" name="toDate" class="form-control">
+                        </div> 
+                    </div>                                                                            
+                    <div class="col-sm-offset-2"> 
+                        <button type="submit" class="btn btn-default">Submit</button> 
+                    </div> 
+                </form>                
+            </div>
+            
         
     </div>
 </div>
