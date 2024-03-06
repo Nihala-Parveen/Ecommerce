@@ -15,7 +15,7 @@ const applyCoupon = async (req, res) => {
     try {
         const userId = req.session.user_id
         const { code, subTotal } = req.body
-        console.log(code);
+        console.log("code",code);
 
         const user = await User.findById(userId)
         if (user.usedCoupons.includes(code)) {
@@ -23,14 +23,23 @@ const applyCoupon = async (req, res) => {
         }
 
         const coupon = await Coupon.findOne({ couponCode: code, status: "Active" })
-        console.log(subTotal);
+        console.log("coupon check",coupon);
+        console.log("subtotal",subTotal);
+        console.log("min",coupon.minAmount);
         if (coupon) {
             const couponExp = coupon.expiryDate
+            console.log("expiry",couponExp);
             const date = new Date()
+            console.log("currdate",date);
             if (couponExp > date) {
-                if (coupon.minAmount && coupon.minAmount <= subTotal) {
+                console.log("date check",couponExp > date);
+                const subTotalNumber = parseFloat(subTotal.replace(/[^\d.]/g, ''));
+                console.log("Is minAmount less than or equal to subTotal?", coupon.minAmount <= subTotalNumber);
+                if (coupon.minAmount <= subTotalNumber) {
                     const amount = coupon.discountAmount
-                    const totalAmount = subTotal - amount
+                    console.log("discount",amount);
+                    const totalAmount = subTotalNumber - amount
+                    console.log("total",totalAmount);
 
                     user.usedCoupons.push(code)
                     await user.save()
@@ -57,10 +66,8 @@ const applyCoupon = async (req, res) => {
 const postOrder = async (req, res) => {
     try {
         const { userId, amount, payment } = req.body
-        const products = JSON.parse(req.body.products)
         const selectedAddress = JSON.parse(req.body.address)
         const date = new Date()
-
         
         const [ cart , userData ] = await Promise.all ([ Cart.findOne({ userId }).populate('products.productId') , User.findById({ _id : userId }) ])
         const orderProducts = cart.products.map(cartItem => {
@@ -194,12 +201,36 @@ const orderSuccess = async ( req , res ) => {
 
 const getOrders = async (req , res) => {
     try {
+        var page = 1
+        if(req.query.page){
+            page = parseInt(req.query.page , 10 )
+        }
+
+        const limit = 3
+
         const userId = req.session.user_id
         const userData = await User.findById({_id:userId})
-        const orderData = await Order.find({user : userId}).populate('products.productId').sort({ date : -1 })
+        const orderData = await Order.find({
+            user : userId
+        }).populate('products.productId')
+        .sort({ date : -1 })
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec()
 
-        if(orderData){
-            res.render('orderdetails' , { orders : orderData , users:userData})
+        const count = await Order.find({
+            user : userId
+        }).populate('products.productId')
+        .sort({ date : -1 })
+        .countDocuments()
+
+        if (orderData) {
+            res.render('orderdetails', {
+                orders: orderData,
+                users: userData,
+                totalPages: Math.ceil(count / limit),
+                currentPage : page
+            })
         } 
     } catch (error) {
         console.log(error.message);

@@ -9,7 +9,6 @@
           <li class="breadcrumb-item active" aria-current="page">Checkout</li>
         </ol>
       </nav>
-      
       <div class="billing_details">
         <div class="row">
           <div class="col-lg-8">
@@ -93,15 +92,10 @@
                   </a>
                 </li> -->
                 </ul>
-                <div class="cupon_area">
-                  <form class="row contact_form" id="couponSubmit">
-                  <input type="text" id="couponCode" placeholder="Enter coupon code"/>
-                  <button id="applyCoupon" class="genric-btn success-border medium ml-5" type="submit">Apply Coupon</button>
-                </form>
-                </div>
+                
                 <div class="payment_item">
                   <div class="radion_btn">
-                    <input type="radio" id="f-option5" name="payment" value="COD" />
+                    <input type="radio" id="f-option5" name="payment" value="COD" required/>
                     <label for="f-option5">Cash on Delivery</label>
                     <span id="cod-message" class="text-danger" style="display: none;">Cash on Delivery is not applicable for orders above Rs 1000.</span>
 
@@ -112,7 +106,7 @@
 
                 <div class="payment_item active">
                   <div class="radion_btn">
-                    <input type="radio" id="f-option6" name="payment" value="onlinePayment" />
+                    <input type="radio" id="f-option6" name="payment" value="onlinePayment" required/>
                     <label for="f-option6">Online Payment </label>
                     <div class="check"></div>
                   </div>
@@ -120,6 +114,7 @@
 
                 <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
                 <input type="hidden" name="amount" value="<%= subtotal %>">
+                <input type="hidden" name="updatedSubtotal" id="updatedSubtotal" value="<%= subtotal %>">
 
                 <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
                 <% if (errorMessages && errorMessages.length> 0) { %>
@@ -145,47 +140,20 @@
           </form>
         </div>
       </div>
+      <div class="cupon_area">
+        <div class="check_title">
+          <h2>
+            Have a coupon?
+            <a href="#">Click here to enter your code</a>
+          </h2>
+        </div>
+        <input type="text" placeholder="Enter coupon code" id="couponCode" name="code"/>
+        <button type="button" class="tp_btn" id="applyCouponBtn">Apply Coupon</button>
+      </div>
     </div>
   </section>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
-    document.getElementById('couponSubmit').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const couponCode = document.getElementById('couponCode').value;
-    console.log(couponCode);
-    if (!couponCode) {
-        alert('Please enter a coupon code');
-        return;
-    }
-    const subtotal = document.getElementById('subtotal').innerText; 
-    console.log(subtotal);
-    fetch('/applyCoupon', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            code: couponCode,
-            subTotal: subtotal 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('subtotal').innerText = data.subTotal;
-            
-            alert('Coupon applied successfully!');
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred. Please try again.');
-    });
-});
-
     document.addEventListener("DOMContentLoaded", function() {
     const subtotal = "<%= subtotal %>";
     const codOption = document.getElementById("f-option5");
@@ -199,8 +167,45 @@
       codMessage.style.display = "none";
     }
   });
+  </script>
+  <script>
+    document.getElementById('applyCouponBtn').addEventListener('click', function () {
+      const couponCode = document.getElementById('couponCode').value;
+      const subtotal = document.getElementById('subtotal').innerText;
+      document.getElementById('updatedSubtotal').value = document.getElementById('subtotal').innerText;
+
+      fetch('/applyCoupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+      code: couponCode,
+      subTotal: subtotal,
+    }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('subtotal').innerText = data.subTotal;
+        alert('Coupon applied successfully!');
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    });
+});
+
+  </script>
+  <script>
     document.getElementById("submitForm").addEventListener("submit", function (event) {
       event.preventDefault();
+
+      const formData = new URLSearchParams(new FormData(event.target))
+      formData.append('updatedSubtotal', document.getElementById('updatedSubtotal').value);
 
       const products = JSON.parse(document.querySelector('input[name="products"]').value);
       let allProductsInStock = true;
@@ -220,7 +225,7 @@
 
       fetch("/confirmorder", {
         method: 'POST',
-        body: new URLSearchParams(new FormData(event.target)),
+        body: formData ,
       })
         .then(response => response.json())
         .then(data => {

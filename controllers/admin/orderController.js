@@ -29,6 +29,7 @@ const viewOrder = async ( req , res ) => {
                 { status : { $regex : '.*'+search+'.*' , $options : 'i' }}
             ]
         }).populate('user')
+        .sort({date:-1})
         .countDocuments()
 
         res.render('vieworder' , { 

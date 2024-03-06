@@ -194,6 +194,17 @@ const updateProduct = async ( req , res ) => {
     }
 }
 
+const deleteImg = async (req , res) => {
+    try {
+        const { id , img } = req.query
+        console.log(id,img);
+        await product.findByIdAndUpdate(id , { $pull : { images : img }} , { new: true })
+        res.redirect(`/viewproducts`)
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 const softdeleteProduct = async (req , res) => {
     try {
         const { id } = req.query
@@ -212,5 +223,6 @@ module.exports = {
     viewsingleProduct , 
     editproductLoad ,
     updateProduct ,
+    deleteImg ,
     softdeleteProduct
 }

@@ -15,6 +15,8 @@ product_Route.get ("/viewsingleproduct" , productController.viewsingleProduct )
 product_Route.get("/editproduct" , auth.isLogin , productController.editproductLoad )
 product_Route.post("/editproduct" , fileupload.array('files',5) , productController.updateProduct )
 
+product_Route.get('/deleteImg' , productController.deleteImg )
+
 product_Route.get ("/deleteProduct" , productController.softdeleteProduct )
 
 module.exports = product_Route

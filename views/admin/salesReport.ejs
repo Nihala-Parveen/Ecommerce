@@ -9,10 +9,15 @@
                 <h4>Sales Report</h4>
             </div>
             <div class="col-md-6 text-right">
-                <form action="/downloadPdf" method="post">
+                <form action="/downloadPdf" method="post" class="col-md-6 text-right">
                     <input type="hidden" name="fromDate" value="<%= fromDate.toISOString() %>">
                     <input type="hidden" name="toDate" value="<%= toDate.toISOString() %>">
-                    <button type="submit"  class = "btn btn-success">Download Sales Report</button>
+                    <button type="submit"  class = "btn btn-success">Download Pdf Report</button>
+                </form>
+                <form action="/downloadExcel" method="post">
+                    <input type="hidden" name="fromDate" value="<%= fromDate.toISOString() %>">
+                    <input type="hidden" name="toDate" value="<%= toDate.toISOString() %>">
+                    <button type="submit"  class = "btn btn-success">Download Excel Report</button>
                 </form>
             </div>
         </div>

@@ -72,6 +72,104 @@ const loadHome = async ( req , res ) => {
     }
 }
 
+const chartFilter = async ( req , res ) => {
+    try {
+        const currentDate = new Date()
+        const currentYear = currentDate.getFullYear()
+
+        const yearlyRevenue = await Order.aggregate([
+            {
+                $match: {
+                    status: "Delivered",
+                    date: {
+                        $gte: new Date(currentYear, 0, 1),
+                        $lt: new Date(currentYear + 1, 0, 1)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: "$date" },
+                    totalRevenue: { $sum: "$amount" }
+                }
+            }
+        ]);
+        
+        const monthlyRevenue = await Order.aggregate([
+            {
+                $match : { 
+                    status : "Delivered" , 
+                    date : { 
+                        $gte : new Date(currentYear, 0, 1) , 
+                        $lt : new Date(currentYear + 1, 0, 1)
+                    }
+                }
+            } ,
+            {
+                $group : {
+                    _id : {
+                        $switch : {
+                            branches : [
+                                { case : { $eq : [{ $month : "$date"} , 1] }, then : "Jan"} ,
+                                { case : { $eq : [{ $month : "$date"} , 2] }, then : "Feb"} ,
+                                { case : { $eq : [{ $month : "$date"} , 3] }, then : "Mar"} ,
+                                { case : { $eq : [{ $month : "$date"} , 4] }, then : "Apr"} ,
+                                { case : { $eq : [{ $month : "$date"} , 5] }, then : "May"} ,
+                                { case : { $eq : [{ $month : "$date"} , 6] }, then : "Jun"} ,
+                                { case : { $eq : [{ $month : "$date"} , 7] }, then : "Jul"} ,
+                                { case : { $eq : [{ $month : "$date"} , 8] }, then : "Aug"} ,
+                                { case : { $eq : [{ $month : "$date"} , 9] }, then : "Sep"} ,
+                                { case : { $eq : [{ $month : "$date"} , 10] }, then : "Oct"} ,
+                                { case : { $eq : [{ $month : "$date"} , 11] }, then : "Nov"} ,
+                                { case : { $eq : [{ $month : "$date"} , 12] }, then : "Dec"} 
+                            ] ,
+                            default : null
+                        }
+                    } ,
+                    totalRevenue : { $sum : "$amount" }
+                }
+            }
+        ])
+
+        const weeklyRevenue = await Order.aggregate([
+            {
+                $match: {
+                    status: "Delivered",
+                    date: {
+                        $gte: new Date(currentYear, 0, 1),
+                        $lt: new Date(currentYear + 1, 0, 1)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { 
+                        $dateToString: {
+                            format: "%Y-%m-%d",
+                            date: {
+                                $dateFromParts: {
+                                    isoWeekYear: { $year: "$date" },
+                                    isoWeek: { $isoWeek: "$date" },
+                                    isoDayOfWeek: 1  // Monday is the first day of the week
+                                }
+                            }
+                        }
+                     },
+                    totalRevenue: { $sum: "$amount" }
+                }
+            }
+        ]);
+        
+        res.json({
+            yearly : yearlyRevenue , 
+            monthly : monthlyRevenue , 
+            weekly : weeklyRevenue 
+        })
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 const calculateTopSellingProducts = async ( req , res ) => {
     try {
         const topProducts = await Order.aggregate([
@@ -301,9 +399,46 @@ const downloadSalesReport = async (req, res) => {
     }
 };
 
-const downloadExcelReport = async ( req , res ) => {
+const downloadExcelReport = async (req, res) => {
     try {
-        
+        const workbook = new ExcelJs.Workbook();
+        const worksheet = workbook.addWorksheet('Sales Report');
+
+        const salesData = await Order.find({ status: "Delivered" }).populate('user').populate('products.productId');
+
+        worksheet.columns = [
+            { header: '#', key: 'index', width: 5 },
+            { header: 'USER', key: 'user', width: 30 },
+            { header: 'DATE', key: 'date', width: 30 },
+            { header: 'PAYMENT', key: 'payment', width: 15 },
+            { header: 'TOTAL', key: 'total', width: 15 },
+        ];
+
+        let { fromDate, toDate } = req.body;
+        fromDate = new Date(fromDate);
+        toDate = new Date(toDate);
+
+        salesData.forEach((sale, index) => {
+            var orderDate = new Date(sale.date);
+            if (orderDate >= fromDate && orderDate <= toDate) {
+                worksheet.addRow({
+                    index: index + 1,
+                    user: sale.user.name,
+                    date: sale.date.toLocaleDateString(),
+                    payment: sale.payment,
+                    total: sale.amount,
+                });
+            }
+        });
+
+        var filename = "orders_" + fromDate.toISOString() + "_" + toDate.toISOString() + ".xlsx";
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=' + filename);
+
+        await workbook.xlsx.write(res);
+        res.end();
+
     } catch (error) {
         console.log(error.message);
     }
@@ -311,6 +446,7 @@ const downloadExcelReport = async ( req , res ) => {
 
 module.exports = {
     loadHome ,
+    chartFilter ,
     calculateTopSellingProducts ,
     calculateTopSellingCategory ,
     getSalesReport , 

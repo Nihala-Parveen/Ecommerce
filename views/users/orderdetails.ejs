@@ -52,6 +52,22 @@
         <% }) %>
         </tbody>
     </table>
+    <div class="d-flex justify-content-center mt-5">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item mx-1"><a class="page-link" href="?page=<%= currentPage - 1 %>">«</a></li>
+                <% } %>
+                <% for (let j = 1; j <= totalPages; j++) { %>
+                    <li class="page-item mx-1 <%= j === currentPage ? 'active' : '' %>"><a class="page-link" href="?page=<%= j %>"><%= j %></a></li>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item mx-1"><a class="page-link" href="?page=<%= currentPage + 1 %>">»</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+     
 </div>
 </section>
 <!-- Confirmation Modal for Order Cancellation -->

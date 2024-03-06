@@ -5,52 +5,53 @@
         <div class="forms">  
             <ol class="breadcrumb">
                 <li><a href="/coupons">Coupons</a></li>
-                <li class="active">Add Coupon</li>
+                <li class="active">Edit Coupon</li>
             </ol>    
             <div class=" form-grids row form-grids-right">
                 <div class="widget-shadow " data-example-id="basic-forms"> 
                     <div class="form-title">
-                        <h4>Add Coupon</h4>
+                        <h4>Edit Coupon</h4>
                     </div>
                     <div class="form-body">
-                        <form class="form-horizontal" action="/addCoupon" method="POST"> 
+                        <form class="form-horizontal" action="/editCoupon" method="POST"> 
+                            <input type="hidden" name="id" value="<%= couponData._id %>">
                             <div class="form-group"> 
                                 <label for="catname" class="col-sm-2 control-label">Coupon Code</label> 
-                                <div class="col-sm-9"> <input type="text" class="form-control" name="code" required>
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="code" required value="<%= couponData.couponCode %>">
                                     <% if(errors && errors.code ) { %>
                                         <span class="text-danger"><%= errors.code %></span>
                                     <% } %></div> 
                             </div> 
                             <div class="form-group"> 
                                 <label for="catname" class="col-sm-2 control-label">Coupon Description</label> 
-                                <div class="col-sm-9"> <input type="text" class="form-control" name="des" required>
+                                <div class="col-sm-9"> <input type="text" class="form-control" name="des" required value="<%= couponData.description %>">
                                     <% if(errors && errors.description ) { %>
                                         <span class="text-danger"><%= errors.description %></span>
                                     <% } %></div> 
                             </div>
                             <div class="form-group"> 
                                 <label for="catname" class="col-sm-2 control-label">Discount Amount</label> 
-                                <div class="col-sm-9"> <input type="number" class="form-control" name="discount" required>
+                                <div class="col-sm-9"> <input type="number" class="form-control" name="discount" required value="<%= couponData.discountAmount %>">
                                     <% if(errors && errors.dis ) { %>
                                         <span class="text-danger"><%= errors.dis %></span>
                                     <% } %></div> 
                             </div>
                             <div class="form-group"> 
                                 <label for="catname" class="col-sm-2 control-label">Minimum Amount</label> 
-                                <div class="col-sm-9"> <input type="number" class="form-control" name="amount" required>
+                                <div class="col-sm-9"> <input type="number" class="form-control" name="amount" required value="<%= couponData.minAmount %>">
                                     <% if(errors && errors.min ) { %>
                                         <span class="text-danger"><%= errors.min %></span>
                                     <% } %></div> 
                             </div>
                             <div class="form-group"> 
                                 <label for="catname" class="col-sm-2 control-label">Expiry Date</label> 
-                                <div class="col-sm-9"> <input type="date" class="form-control" name="date" required>
+                                <div class="col-sm-9"> <input type="date" class="form-control" name="date" required value="<%= couponData.expiryDate.toISOString().split('T')[0] %>">
                                     <% if(errors && errors.date ) { %>
                                         <span class="text-danger"><%= errors.date %></span>
                                     <% } %></div> 
                             </div>
                             <div class="col-sm-offset-2"> 
-                                <button type="submit" class="btn btn-default">Add Coupon</button> 
+                                <button type="submit" class="btn btn-default">Edit Coupon</button> 
                             </div> 
                         </form> 
                         <%

@@ -4,11 +4,17 @@
     <div class="main-page">
         <div class="tables">
             <div class="table-responsive bs-example widget-shadow">
-                <h4 style="float: left; margin-right: 800px;">Products</h4>
-                <form>
-                    <input type="text" name="search" placeholder="Search products">
-                    <button type="submit"><i class="fa fa-search"></i></button>
-                </form>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Products</h4>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <form class="form-inline">
+                            <input type="text" class="form-control" name="search" placeholder="Search products">
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </form>
+                    </div>
+                </div>
                 <table class="table table-bordered"> 
                     <thead> 
                         <tr> 
@@ -32,14 +38,40 @@
                         <% }) %>
                     </tbody> 
                 </table> 
-                <div class="col-md-6" style="margin-right: 400px;">
+                <div class="row">
+                <div class="col-md-6">
                     <ul class="pagination pagination-sm">
-                        <% for(let j = 1 ; j <= totalPages ; j++ ){ %>
-                        <li class="<%= j === currentPage ? 'active' : '' %>"><a href="?page=<%= j %>"><%= j %></a></li>
+                        <% const numPagesToShow = 5; %>
+                        <% const startPage = Math.max(1, currentPage - Math.floor(numPagesToShow / 2)); %>
+                        <% const endPage = Math.min(totalPages, startPage + numPagesToShow - 1); %>
+                        
+                        <% if (currentPage > 1) { %>
+                            <li><a href="?page=<%= currentPage - 1 %>">«</a></li>
+                        <% } %>
+                        <% if (startPage > 1) { %>
+                            <li><a href="?page=1">1</a></li>
+                            <% if (startPage > 2) { %>
+                                <li class="disabled"><span>...</span></li>
+                            <% } %>
+                        <% } %>
+                        <% for(let j = startPage ; j <= endPage ; j++ ){ %>
+                            <li class="<%= j === currentPage ? 'active' : '' %>"><a href="?page=<%= j %>"><%= j %></a></li>
+                        <% } %>
+                        <% if (endPage < totalPages) { %>
+                            <% if (endPage < totalPages - 1) { %>
+                                <li class="disabled"><span>...</span></li>
+                            <% } %>
+                            <li><a href="?page=<%= totalPages %>"><%= totalPages %></a></li>
+                        <% } %>
+                        <% if (currentPage < totalPages) { %>
+                            <li><a href="?page=<%= currentPage + 1 %>">»</a></li>
                         <% } %>
                     </ul>
-                </div>
+                </div>  
+                <div class="col-md-6 text-right"> 
                 <button type = "submit" class = "btn btn-success"><a href="/addproduct" class="text-white">Add New Product</a></button>
+            </div>
+        </div>
             </div>
         </div>
     </div>

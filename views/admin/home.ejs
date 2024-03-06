@@ -7,7 +7,7 @@
         <div class="r3_counter_box">
             <i class="pull-left fa fa-dollar icon-rounded"></i>
             <div class="stats">
-              <h5><strong>$<%= totalPrice %></strong></h5>
+              <h5><strong>₹<%= totalPrice %></strong></h5>
               <span>Total Revenue</span>
             </div>
         </div>
@@ -39,51 +39,39 @@
               <span>Total Sales</span>
             </div>
         </div>
-    </div>
-    <div class="col-md-3 widget">
-        <div class="r3_counter_box">
-            <i class="pull-left fa fa-users dollar2 icon-rounded"></i>
-            <div class="stats">
-              <h5><strong><%= userCount %></strong></h5>
-              <span>Total Users</span>
-            </div>
         </div>
-     </div>
-     
-    <div class="clearfix"> </div>
-</div>
-
-
-
-<div class="row-one widgettable">
-    <div class="col-md-7 content-top-2 card">
-        <div class="agileinfo-cdr">
-            <div class="card-header">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h3>Monthly Sales</h3>
-                    </div>
-                    <div class="col-md-6 text-right">
-                        <form class="form-inline">
-                            <input type="text" class="form-control" placeholder="Search">
-                            <button type="submit" class="btn btn-primary">Search</button>
-                        </form>
-                    </div>
+        <div class="col-md-3 widget">
+            <div class="r3_counter_box">
+                <i class="pull-left fa fa-users dollar2 icon-rounded"></i>
+                <div class="stats">
+                    <h5><strong>
+                            <%= userCount %>
+                        </strong></h5>
+                    <span>Total Users</span>
                 </div>
             </div>
-            
-            
-                <div id="Linegraph" style="width: 98%; height: 350px">
-                </div>
-                
         </div>
-    </div>
-    
-    <div class="col-md-3 stat">
-        <div class="content-top-1">
-        <div class="col-md-6 top-content">
-            <h5><a href="/topProducts" style="color: black;">Best Selling Products</h5></a>
+        
+        <div class="clearfix"> </div>
         </div>
+        
+        
+        <div class="row-one widgettable">
+            <div class="col-md-7 content-top-2 card">
+                <canvas id="myChart"></canvas>
+                <select id="timeFrame" onchange="timeFrame()" class="form-control">
+                    <option value="">--Select--</option>
+                    <option value="0">Weekly</option>
+                    <option value="1">Monthly</option>
+                    <option value="2">Yearly</option>
+                </select>
+            </div>
+        
+            <div class="col-md-3 stat">
+                <div class="content-top-1">
+                    <div class="col-md-6 top-content">
+                        <h5><a href="/topProducts" style="color: black;">Best Selling Products</h5></a>
+                    </div>
         
          <div class="clearfix"> </div>
         </div>
@@ -161,42 +149,115 @@
         
     </div>
 </div>
-<script src="/admin/js/SimpleChart.js"></script>
 
-<script>
-    
-     var sales = {
-         linecolor: "#00CC66",
-         title: "Tuesday",
-        
-         values: [
-           { X: "<%= month[0] %>", Y: "<%= Sales[0] %>" },
-           { X: "<%= month[1] %>", Y: "<%= Sales[1] %>" },
-         ]
-     };
-     var revenue = {
-         linecolor: "#FF99CC",
-         title: "Wednesday",
-         values: [
-           { X: "<%= month[0] %>", Y: "<%= Revenue[0] %>" },
-           { X: "<%= month[1] %>", Y: "<%= Revenue[1] %>" },
-         ]
-     };
-     
-     $("#Linegraph").SimpleChart({
-             ChartType: "Line",
-             toolwidth: "50",
-             toolheight: "25",
-             axiscolor: "#E6E6E6",
-             textcolor: "#6E6E6E",
-             showlegends: false,
-             data: [sales, revenue],
-             legendsize: "140",
-             legendposition: 'bottom',
-             xaxislabel: 'Month',
-             title: 'Monthly Revenue',
-             yaxislabel: 'Revenue in ₹'
-         });
-</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+    <script>
+        function timeFrame() {
+        const selectElement = document.getElementById('timeFrame');
+        const val = parseInt(selectElement.value);
+
+        async function fetchData() {
+            const url = '/chartFilter';
+            const response = await fetch(url);
+            const datapoints = await response.json();
+            return datapoints;
+        }
+
+        fetchData().then(datapoints => {
+            let labels, data, label;
+            labels = datapoints.weekly.map(item => item._id);
+            data = datapoints.weekly.map(item => item.totalRevenue);
+            label = 'Weekly Sales';
+            if (val === 0) { // Weekly
+                labels = datapoints.weekly.map(item => item._id);
+                data = datapoints.weekly.map(item => item.totalRevenue);
+                label = 'Weekly Sales';
+            } else if (val === 1) { // Monthly
+                labels = datapoints.monthly.map(item => item._id);
+                data = datapoints.monthly.map(item => item.totalRevenue);
+                label = 'Monthly Sales';
+            } else if (val === 2) { // Yearly
+                labels = datapoints.yearly.map(item => item._id);
+                data = datapoints.yearly.map(item => item.totalRevenue);
+                label = 'Yearly Sales';
+            }
+
+            myChart.config.data.labels = labels;
+            myChart.config.data.datasets[0].data = data;
+            myChart.config.data.datasets[0].label = label;
+            myChart.update();
+        });
+    }
+
+    async function fetchWeeklyData() {
+        const url = '/chartFilter';
+        const response = await fetch(url);
+        const datapoints = await response.json();
+        return datapoints.weekly;
+    }
+
+    fetchWeeklyData().then(weeklyData => {
+        const labels = weeklyData.map(item => item._id);
+        const data = weeklyData.map(item => item.totalRevenue);
+        const label = 'Weekly Sales';
+
+        myChart.config.data.labels = labels;
+        myChart.config.data.datasets[0].data = data;
+        myChart.config.data.datasets[0].label = label;
+        myChart.update();
+    });
+
+        // setup 
+        const data = {
+              labels: [],
+            datasets: [{
+                label: 'Weekly Sales',
+                data: [] ,
+                backgroundColor: [
+                    'rgba(255, 26, 104, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(0, 0, 0, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 26, 104, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(0, 0, 0, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // config 
+        const config = {
+            type: 'bar',
+            data,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // render init block
+        const myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+
+        // Instantly assign Chart.js version
+        const chartVersion = document.getElementById('chartVersion');
+        chartVersion.innerText = Chart.version;
+    </script>
+
 
 <%- include('../layouts/adminFooter.ejs') %>
