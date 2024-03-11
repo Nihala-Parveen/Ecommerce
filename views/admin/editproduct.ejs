@@ -55,8 +55,13 @@
                                 <label for="files" class="col-sm-2 control-label">Product Images</label> 
                                 <div class="col-sm-9"> <% product.images.forEach((image, index) => { %>
                                     <div class="image-container">
-                                        <a href="#" onclick="showConfirmationModal( '<%= index %>' , '<%= product._id.toString() %>' )" class="text-danger padding-5"><i class="fa fa-trash-o"></i></a>
-                                        <button class="btn btn-success update-btn" type="button" data-index="<%= index %>">Update</button>
+                                        <a href="#" onclick="showConfirmationModal( '<%= image %>' , '<%= product._id.toString() %>' )" class="text-danger padding-5"><i class="fa fa-trash-o"></i></a>
+                                        <form action="/replaceImg" method="POST" enctype="multipart/form-data">
+                                            <input type="hidden" name="productId" value="<%= product._id.toString() %>">
+                                            <input type="hidden" name="imageIndex" value="<%= index %>">
+                                            <input type="file" name="upd">
+                                            <button class="btn btn-success update-btn" type="submit">Update</button>
+                                        </form>
                                         <img src="/uploads/<%= image %>" alt="Image <%= index + 1 %>" height="100px" width="100px">
                                     </div>
                                 <% }); %>

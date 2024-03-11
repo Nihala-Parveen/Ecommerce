@@ -192,7 +192,7 @@ function razorPayment(order) {
         "image": "https://example.com/your_logo",
         "order_id": order.id,
         "handler": function (response) {
-          verifyPayment(response, orders._id)
+          verifyPayment(response, order.receipt)
         },
         "prefill": {
           "name": "<%= users.name %>",

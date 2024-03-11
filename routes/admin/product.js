@@ -16,6 +16,7 @@ product_Route.get("/editproduct" , auth.isLogin , productController.editproductL
 product_Route.post("/editproduct" , fileupload.array('files',5) , productController.updateProduct )
 
 product_Route.get('/deleteImg' , productController.deleteImg )
+product_Route.post('/replaceImg' , fileupload.single('upd') , productController.replaceImg )
 
 product_Route.get ("/deleteProduct" , productController.softdeleteProduct )
 

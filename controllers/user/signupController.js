@@ -6,6 +6,8 @@ const sendOTP = require('../../controllers/user/otpController')
 
 const loadRegister = async (req , res) => {
     try {
+        const { referralCode } = req.query
+        req.session.referralCode = referralCode
         res.render ('signup')
     } catch (error) {
         console.log(error.message);
@@ -35,6 +37,17 @@ const validateSignup = [
         }),
   ];
 
+function generateReferralCode ( length = 8 ) {
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let referralCode = ''
+
+    for ( let i = 0 ; i < length ; i++ ) {
+        let randomIndex = Math.floor( Math.random() * characters.length )
+        referralCode += characters.charAt ( randomIndex )
+    }
+    return referralCode
+} 
+
 const insertUser = async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty() ) {
@@ -59,7 +72,9 @@ const insertUser = async (req, res) => {
             return res.render('signup', { message: 'Mobile number already in use.' });
         }
 
-        const tempUser = { name , email , mobile , password : spassword }
+        const referralCode = await generateReferralCode()
+        
+        const tempUser = { name , email , mobile , password : spassword , referralCode }
         
         req.session.tempUser = tempUser
 

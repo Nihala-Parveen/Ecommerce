@@ -15,35 +15,26 @@ const applyCoupon = async (req, res) => {
     try {
         const userId = req.session.user_id
         const { code, subTotal } = req.body
-        console.log("code",code);
 
-        const user = await User.findById(userId)
-        if (user.usedCoupons.includes(code)) {
-            return res.json({ success: false, message: "Coupon already used." })
+        const usedCoupon = await Order.findOne ( { user : userId , "coupon.couponCode" : code })
+        if ( usedCoupon ) {
+            return res.json ( { success : false , message : "Coupon already used."})
         }
 
         const coupon = await Coupon.findOne({ couponCode: code, status: "Active" })
-        console.log("coupon check",coupon);
-        console.log("subtotal",subTotal);
-        console.log("min",coupon.minAmount);
         if (coupon) {
             const couponExp = coupon.expiryDate
-            console.log("expiry",couponExp);
             const date = new Date()
-            console.log("currdate",date);
             if (couponExp > date) {
-                console.log("date check",couponExp > date);
                 const subTotalNumber = parseFloat(subTotal.replace(/[^\d.]/g, ''));
-                console.log("Is minAmount less than or equal to subTotal?", coupon.minAmount <= subTotalNumber);
                 if (coupon.minAmount <= subTotalNumber) {
-                    const amount = coupon.discountAmount
-                    console.log("discount",amount);
-                    const totalAmount = subTotalNumber - amount
-                    console.log("total",totalAmount);
+                    req.session.coupon = coupon.couponCode
+                    req.session.discount = coupon.discountAmount
 
-                    user.usedCoupons.push(code)
-                    await user.save()
-                    res.json({ success: true, subTotal: totalAmount })
+                    const amount = coupon.discountAmount
+                    const totalAmount = subTotalNumber - amount
+
+                    res.json({ success: true, subTotal: totalAmount , discount: amount })
                 } else {
                     res.json({ success: false, message: "Minimum amount not met." })
                 }
@@ -58,6 +49,15 @@ const applyCoupon = async (req, res) => {
             res.json({ success: false, message: "Coupon code not matching." })
         }
 
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const viewCoupons = async ( req , res ) => {
+    try {
+        const couponData = await Coupon.find({ status : "Active" })
+        res.render('viewCoupon' , { couponData } )
     } catch (error) {
         console.log(error.message);
     }
@@ -102,15 +102,19 @@ const postOrder = async (req, res) => {
                 district: selectedAddress.district,
                 ZIPcode: selectedAddress.ZIPcode
             },
-            date: date
+            date: date ,
+            coupon : {
+                couponCode : req.session.coupon , 
+                couponDiscount : req.session.discount
+            }
         })
         await order.save()
 
         const orderData = await Order.findById(order._id).populate('products.productId', 'name')
-        req.session.OrderId = orderData._id
+        req.session.orderSuccess = orderData._id
 
         if (payment === "COD") {
-            await Order.updateOne({ _id: orderData._id }, { $set: { payment: "Cash on Delivery" , status: "Placed" } })
+            await Order.updateOne({ _id: orderData._id }, { $set: { payment: "Cash on Delivery" , status: "Placed" , 'products.$[].status': "Placed" } })
 
             for (const ordrProduct of orderProducts) {
                 const product = await Product.findById(ordrProduct.productId)
@@ -167,11 +171,12 @@ const continuePayment = async ( req , res ) => {
 
 const verifyPayment = async ( req , res ) => {
     try {
-        const orderId = req.session.OrderId
+        const orderId = req.body.order
+        req.session.orderSuccess = orderId
         const userId = req.session.user_id
-        await Order.updateOne({ _id : orderId , user : userId } , { $set : { status: "Placed" , paymentStatus : "Paid" , 'products.$[].status': "Placed" , 'products.$[].paymentStatus': "Paid" }}) 
-
         const order = await Order.findById(orderId).populate('products.productId')
+
+        const up = await Order.updateOne({ _id : orderId , user : userId } , { $set : { status: "Placed" , paymentStatus : "Paid" , 'products.$[].status': "Placed" , 'products.$[].paymentStatus': "Paid" }}) 
         for(orderProduct of order.products){
             const product = await Product.findById(orderProduct.productId)
             product.stock -= orderProduct.quantity
@@ -192,7 +197,8 @@ const verifyPayment = async ( req , res ) => {
 const orderSuccess = async ( req , res ) => {
     try {
         const userId = req.session.user_id
-        const orderData = await Order.findOne({user:userId}).sort({date:-1}).populate('products.productId')
+        const orderId = req.session.orderSuccess
+        const orderData = await Order.findOne({_id : orderId , user:userId}).populate('products.productId')
         res.render('order' , { order : orderData })
     } catch (error) {
         console.log(error.message);
@@ -443,18 +449,6 @@ function createInvoice(invoice) {
       .lineTo(550, y)
       .stroke();
   }
-  
-  function formatCurrency(cents) {
-    return "$" + (cents / 100).toFixed(2);
-  }
-  
-  function formatDate(date) {
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-  
-    return year + "/" + month + "/" + day;
-  }
 
   const downloadInvoice = async (req, res) => {
     try {
@@ -508,6 +502,7 @@ function createInvoice(invoice) {
 
 module.exports = {
     applyCoupon ,
+    viewCoupons ,
     postOrder , 
     orderSuccess ,
     getOrders ,

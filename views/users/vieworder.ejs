@@ -1,6 +1,6 @@
 <%- include('../layouts/header.ejs') %>
 <section class="p-5">
-<div class="container">
+<div class="container p-5">
     <nav aria-label="breadcrumb" style="background-color: white;">
         <ol class="breadcrumb mt-3">
             <li class="breadcrumb-item"><a href="/home">Home</a></li>
@@ -61,10 +61,12 @@
                     <% }) %>
                 </tbody>
             </table>
-            
-            <p>Total Amount: <%= orders.amount %></p>
+
+            <p>Total : <%= orders.amount + orders.coupon.couponDiscount %></p>
+            <p>Discount : <%= orders.coupon.couponDiscount %></p>
+            <p>Subtotal : <%= orders.amount %></p>
             <p>Payment Method : <%= orders.payment %></p>
-            <p>Status: <%= orders.status %></p>
+            <p>Status : <%= orders.status %></p>
         </div>
     
 </div>

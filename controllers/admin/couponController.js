@@ -78,12 +78,12 @@ const viewCoupon = async ( req , res ) => {
 
         const limit = 3
 
-        const  couponData = await Coupon.find({})
+        const  couponData = await Coupon.find({  status : "Active" })
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec()
 
-        const  count = await Coupon.find({}).countDocuments()
+        const  count = await Coupon.find({ status : "Active" }).countDocuments()
 
         res.render('viewCoupon' , { 
             coupons : couponData , 

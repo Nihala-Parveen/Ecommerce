@@ -48,12 +48,17 @@ const userSchema = new mongoose.Schema({
         type : Boolean , 
         default : false
     } ,
+    wallet : { 
+        type : Number ,
+        default : 0
+    } ,
+    referralCode : {
+        type : String ,
+        required : true
+    } ,
     token : {
         type : String ,
         default : ''
-    } ,
-    usedCoupons : [ {
-        type : String
-    }]
+    } 
 })
 module.exports = mongoose.model ('User', userSchema)

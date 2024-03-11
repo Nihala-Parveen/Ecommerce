@@ -197,11 +197,32 @@ const updateProduct = async ( req , res ) => {
 const deleteImg = async (req , res) => {
     try {
         const { id , img } = req.query
-        console.log(id,img);
-        await product.findByIdAndUpdate(id , { $pull : { images : img }} , { new: true })
-        res.redirect(`/viewproducts`)
+        const productData = await product.findByIdAndUpdate(id , { $pull : { images : img }} , { new: true })
+        res.redirect(`/editproduct?id=${productData._id}`)
     } catch (error) {
         console.log(error.message);
+    }
+}
+
+async function updateImage ( productId , imageIndex , req , res ) {
+    try {
+        const product = await product.findById(productId)
+        console.log(req.file);
+        product.images[imageIndex] = req.file.filename
+        await product.save()
+        res.redirect(`/editproduct`)
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const replaceImg = async ( req , res ) => {
+    try {
+       const { productId , imageIndex } = req.body
+       console.log( productId , imageIndex );
+       updateImage(productId, imageIndex, req, res);
+    } catch (error) {
+        
     }
 }
 
@@ -224,5 +245,6 @@ module.exports = {
     editproductLoad ,
     updateProduct ,
     deleteImg ,
+    replaceImg ,
     softdeleteProduct
 }

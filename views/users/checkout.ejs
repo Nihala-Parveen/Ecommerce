@@ -1,6 +1,5 @@
 <%- include('../layouts/header.ejs') %>
-
-  <section class="p-4">
+  <section class="" style="padding: 80px;">
     <div class="container">
       <nav aria-label="breadcrumb" style="background-color: white;" class="mb-5">
         <ol class="breadcrumb mt-3">
@@ -44,6 +43,11 @@
                   </div>
                   <% }) %>
                     <a href="/addAddress" class="text-primary">+Add new address</a>
+                    <div class="cupon_area">
+                      <input type="text" placeholder="Enter coupon code" id="couponCode" name="code"/>
+                      <span id="couponErr" class="text-danger pl-4" style="display: none;">Please Enter a valid coupon code.</span>
+                      <button type="button" class="tp_btn" id="applyCouponBtn">Apply Coupon</button>
+                    </div>
               </div>
           </div>
           <div class="col-lg-4">
@@ -78,19 +82,19 @@
                 <ul class="list list_2">
                   <li>
                     <a href="#">Subtotal
-                      <span id="subtotal">₹<%= subtotal %></span>
+                      <span>₹<%= subtotal %></span>
                     </a>
                   </li>
-                  <!-- <li>
-                  <a href="#">Shipping
-                    <span>Flat rate: $50.00</span>
+                  <li>
+                  <a href="#">Discount
+                    <span id="discount">₹0</span>
                   </a>
                 </li>
                 <li>
                   <a href="#">Total
-                    <span>$2210.00</span>
+                    <span  id="subtotal">₹<%= subtotal %></span>
                   </a>
-                </li> -->
+                </li>
                 </ul>
                 
                 <div class="payment_item">
@@ -114,7 +118,6 @@
 
                 <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
                 <input type="hidden" name="amount" value="<%= subtotal %>">
-                <input type="hidden" name="updatedSubtotal" id="updatedSubtotal" value="<%= subtotal %>">
 
                 <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
                 <% if (errorMessages && errorMessages.length> 0) { %>
@@ -140,16 +143,6 @@
           </form>
         </div>
       </div>
-      <div class="cupon_area">
-        <div class="check_title">
-          <h2>
-            Have a coupon?
-            <a href="#">Click here to enter your code</a>
-          </h2>
-        </div>
-        <input type="text" placeholder="Enter coupon code" id="couponCode" name="code"/>
-        <button type="button" class="tp_btn" id="applyCouponBtn">Apply Coupon</button>
-      </div>
     </div>
   </section>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -169,12 +162,21 @@
   });
   </script>
   <script>
+    let couponApplied = false;
     document.getElementById('applyCouponBtn').addEventListener('click', function () {
+      if (couponApplied) {
+      swal("Coupon has already been applied.");
+      return;
+    }
+
       const couponCode = document.getElementById('couponCode').value;
       const subtotal = document.getElementById('subtotal').innerText;
-      document.getElementById('updatedSubtotal').value = document.getElementById('subtotal').innerText;
+      const couponErr = document.getElementById('couponErr')
 
-      fetch('/applyCoupon', {
+      if(couponCode === ""){
+        couponErr.style.display = "block"
+      } else {
+        fetch('/applyCoupon', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -188,15 +190,21 @@
     .then(data => {
       if (data.success) {
         document.getElementById('subtotal').innerText = data.subTotal;
-        alert('Coupon applied successfully!');
+        document.getElementById('discount').innerText = data.discount
+        document.querySelector('input[name="amount"]').value = data.subTotal;
+        swal("Coupon", "Applied Successfully", "success");
+        couponApplied = true;
       } else {
-        alert(data.message);
+        swal("", data.message , "error");
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      swal("","An error occurred. Please try again." , "error");
     });
+      }
+
+      
 });
 
   </script>
@@ -205,7 +213,6 @@
       event.preventDefault();
 
       const formData = new URLSearchParams(new FormData(event.target))
-      formData.append('updatedSubtotal', document.getElementById('updatedSubtotal').value);
 
       const products = JSON.parse(document.querySelector('input[name="products"]').value);
       let allProductsInStock = true;
@@ -248,7 +255,7 @@
         "image": "https://example.com/your_logo",
         "order_id": order.id,
         "handler": function (response) {
-          verifyPayment(response, order)
+          verifyPayment(response, order.receipt)
         },
         "prefill": {
           "name": "<%= users.name %>",

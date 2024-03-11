@@ -3,6 +3,11 @@ const product = require ('../../models/productModel')
 
 const productLoad = async ( req , res ) => {
     try {
+        var search = ''
+        if(req.query.search){
+            search = req.query.search
+        }
+
         var page = 1
         if(req.query.page){
             page = parseInt(req.query.page , 10)
@@ -11,12 +16,20 @@ const productLoad = async ( req , res ) => {
         const limit = 8
 
         const categoryData = await category.find()
-        const productData = await product.find({isDeleted : false})
+        const productData = await product.find({ isDeleted : false ,
+            $or : [
+                { name : { $regex : '.*'+search+'.*' , $options : 'i' }}
+            ]
+        })
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec()
 
-        const count = await product.find().countDocuments()
+        const count = await product.find({
+            $or : [
+                { name : { $regex : '.*'+search+'.*' , $options : 'i' }}
+            ]
+        }).countDocuments()
         res.render ('productlist' , { 
             products : productData , 
             categories : categoryData ,

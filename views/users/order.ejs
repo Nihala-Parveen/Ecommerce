@@ -68,6 +68,15 @@
                 </tr>
                 <% }) %>
                 <tr>
+                  <th colspan="3">Total</th>
+                  <th> <span>$<%= order.amount + order.coupon.couponDiscount %></span></th>
+                </tr>
+                <tr>
+                <tr>
+                  <th colspan="3">Discount</th>
+                  <th> <span>$<%= order.coupon.couponDiscount %></span></th>
+                </tr>
+                <tr>
                   <th colspan="3">Subtotal</th>
                   <th> <span>$<%= order.amount %></span></th>
                 </tr>

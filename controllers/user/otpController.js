@@ -48,7 +48,22 @@ const verify = async (req , res) => {
         const user = new User(tempUser)
         await user.save()
         req.session.tempUser = null
-        res.redirect ('/home')
+        req.session.user_id = user._id
+        if (req.session.referralCode) {
+            await Promise.all([await User.findOneAndUpdate(
+                { referralCode: req.session.referralCode },
+                { $inc: { wallet: 500 } },
+                { new: true }
+            ),
+            User.findByIdAndUpdate(
+                { _id: req.session.user_id },
+                { $inc: { wallet: 500 } },
+                { new: true }
+            )]) 
+            res.redirect ('/home')
+        } else {
+            res.redirect ('/home')
+        }
     }
     else {
         res.render('otp' , {message : "OTP is incorrect or expired."})
