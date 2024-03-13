@@ -25,7 +25,8 @@
                     <div class="rounded shadow-sm p-5 mb-5 d-flex align-items-center mt-4" style="background-color: rgb(229, 252, 229);">
                         <button id="refCodeCopyBtn" class="genric-btn primary mr-3 ml-5" data-link="http://localhost:3000/signup?referralCode=<%= users.referralCode %>">Copy Referral Link <i class="fa fa-solid fa-copy"></i></button>
                         <p class="font-italic mb-0">Share your unique referral link to invite others to join ShopEasy.</p>
-                    </div>                    
+                    </div>   
+                    <h2>Wallet Balance : ₹<%= users.wallet %></h2>                 
                     <div class="mb-3 row mt-5">
                         <label for="name" class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
@@ -44,7 +45,8 @@
                             <input type="text" class="form-control" id="mno" name="mno" value="<%= users.mobile %>" required readonly>
                         </div>
                     </div>
-                    <a href="/editprofile?id=<%= users._id %>" class="genric-btn primary mt-4">Edit Profile</a>                    
+                    <a href="/editprofile?id=<%= users._id %>" class="genric-btn primary mt-4">Edit Profile</a>  
+                                      
                 </div>
                 
             </div>

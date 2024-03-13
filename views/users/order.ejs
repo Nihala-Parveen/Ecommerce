@@ -18,7 +18,7 @@
               </li>
               
               <li>
-                <p>total</p><span>: $<%= order.amount %></span>
+                <p>total</p><span>: ₹<%= order.amount %></span>
               </li>
               <li>
                 <p>Payment method</p><span>: <%= order.payment %></span>
@@ -64,21 +64,21 @@
                 <tr>
                   <th colspan="2"><span><%= cartItem.productId.name %></span></th>
                   <th>x<%= cartItem.quantity %></th>
-                  <th> <span>$<%= cartItem.quantity * cartItem.price %></span></th>
+                  <th> <span>₹<%= cartItem.quantity * cartItem.price %></span></th>
                 </tr>
                 <% }) %>
                 <tr>
                   <th colspan="3">Total</th>
-                  <th> <span>$<%= order.amount + order.coupon.couponDiscount %></span></th>
+                  <th> <span>₹<%= order.amount + order.coupon.couponDiscount %></span></th>
                 </tr>
                 <tr>
                 <tr>
                   <th colspan="3">Discount</th>
-                  <th> <span>$<%= order.coupon.couponDiscount %></span></th>
+                  <th> <span>₹<%= order.coupon.couponDiscount %></span></th>
                 </tr>
                 <tr>
                   <th colspan="3">Subtotal</th>
-                  <th> <span>$<%= order.amount %></span></th>
+                  <th> <span>₹<%= order.amount %></span></th>
                 </tr>
                 
               </tbody>

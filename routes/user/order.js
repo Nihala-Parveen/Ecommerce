@@ -7,7 +7,7 @@ const ordercontroller = require('../../controllers/user/orderController')
 const auth = require('../../middleware/userAuth')
 
 orderRoute.post('/applyCoupon' , ordercontroller.applyCoupon )
-orderRoute.get('/viewCoupons' , ordercontroller.viewCoupons )
+orderRoute.get('/viewCoupons' , auth.isLogin , ordercontroller.viewCoupons )
 orderRoute.post('/confirmorder' , ordercontroller.postOrder )
 orderRoute.get('/orderSuccess' , ordercontroller.orderSuccess )
 orderRoute.post('/continuePayment' , ordercontroller.continuePayment )

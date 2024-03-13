@@ -11,6 +11,7 @@ const getAddCoupon = async ( req , res ) => {
 const addCoupon = async ( req , res ) => {
     try {
         const { code , des , discount , amount , date } = req.body
+        code.trim()
 
         const existingCoupon = await Coupon.findOne({ couponCode: code })
 

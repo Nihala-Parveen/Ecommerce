@@ -14,7 +14,7 @@ const signupController = require ('../../controllers/user/signupController')
 const otpController = require ( "../../controllers/user/otpController" )
 
 user_Route.get ( "/otp" , otpController.loadOtp )
-user_Route.post( "/send" ,  signupController.validateSignup , signupController.insertUser )
+user_Route.post( "/send" ,  signupController.insertUser )
 user_Route.post ("/verify" , otpController.verify )
 
 module.exports = user_Route

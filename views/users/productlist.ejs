@@ -14,10 +14,10 @@
                 <div class="card position-relative" style="width: 15rem; height: 27rem;">
                     <img src="/uploads/<%= product.images[0] %>" alt="catimg" height="300px" width="250px" class="card-img-top zoomable-image">
                     <div class="d-flex justify-content-end position-absolute" style="top: 0; right: 0;">
-                    <form action="/addToWishlist" method="POST">
-                        <input type="hidden" name="productId" value="<%= product._id %>">
-                        <button type="submit" class="hidden-button"><i class="fas fa-heart text-danger"></i></button>
-                    </form>
+                    
+                        <input type="hidden" id="productId" name="productId" value="<%= product._id %>">
+                        <button type="button" id="addToWishlistButton" class="hidden-button"><i class="fas fa-heart" style="color: rgb(191, 197, 197);"></i></button>
+                    
                 </div>
                     <div class="card-body">
                         <h5><%= product.name %></h5>
@@ -51,6 +51,28 @@
         </div>
     </div>
 </section>
-    
+<script>
+    document.getElementById('addToWishlistButton').addEventListener("click" , function ( event ) {
+        event.preventDefault()
+        
+        const productId = document.getElementById('productId').value
 
+        fetch ('/addToWishlist' , {
+            method : 'POST' ,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify({ productId: productId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                swal("Product added to wishlist")
+            } else {
+                swal("Product already in wishlist.")
+            }
+        })
+        .catch(error => swal(error))
+    })
+</script>
 <%- include('../layouts/footer.ejs') %>

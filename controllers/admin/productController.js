@@ -206,10 +206,10 @@ const deleteImg = async (req , res) => {
 
 async function updateImage ( productId , imageIndex , req , res ) {
     try {
-        const product = await product.findById(productId)
+        const productData = await product.findById(productId)
         console.log(req.file);
-        product.images[imageIndex] = req.file.filename
-        await product.save()
+        productData.images[imageIndex] = req.file.filename
+        await productData.save()
         res.redirect(`/editproduct`)
     } catch (error) {
         console.log(error.message);

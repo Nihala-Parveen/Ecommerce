@@ -116,6 +116,16 @@
                   </div>
                 </div>
 
+                <% if ( users.wallet >= subtotal ) { %> 
+                  <div class="payment_item active">
+                    <div class="radion_btn">
+                      <input type="radio" id="f-option7" name="payment" value="Wallet" required/>
+                      <label for="f-option7">Wallet Payment </label>
+                      <div class="check"></div>
+                    </div>
+                  </div>
+                  <% } %>
+
                 <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
                 <input type="hidden" name="amount" value="<%= subtotal %>">
 

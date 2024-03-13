@@ -1,4 +1,5 @@
 const Order = require('../../models/orderModel')
+const User = require('../../models/userModel')
 
 const viewOrder = async ( req , res ) => {
     try {
@@ -69,7 +70,7 @@ const changeStatus = async ( req , res ) => {
     try {
         const id = req.query.id
         const newStatus = req.body.status
-        const order =  await Order.findByIdAndUpdate( id , {$set : { status : newStatus }})
+        const order =  await Order.findByIdAndUpdate( id , {$set : { status : newStatus , paymentStatus : "Refunded" }})
 
         order.products.forEach((product) => {
             if(product.status !== "Cancelled") {
@@ -81,6 +82,10 @@ const changeStatus = async ( req , res ) => {
         if (order.payment === 'COD' && newStatus === 'Delivered') {
             await Order.findByIdAndUpdate(id, { $set: { paymentStatus: 'Paid' } });
         } 
+        
+        const user = order.user
+        
+        await User.findOneAndUpdate({ _id : user } , { $inc : { wallet : order.amount }})
         
         res.redirect('/view-orders')
     } catch (error) {

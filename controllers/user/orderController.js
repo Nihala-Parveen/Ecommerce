@@ -142,6 +142,22 @@ const postOrder = async (req, res) => {
                     res.json({ success: true, order: orders })
                 }
             })
+        } else {
+            await Promise.all([
+                Order.updateOne({ _id: orderData._id }, { $set: { payment : "Wallet Payment" , status : "Placed" , paymentStatus : "Paid" } }) ,
+                User.updateOne({ _id : userId } , { $inc : { wallet : -amount }})
+            ])
+            for (const ordrProduct of orderProducts) {
+                const product = await Product.findById(ordrProduct.productId)
+                product.stock -= ordrProduct.quantity
+                await product.save()
+            }
+
+            if (cart) {
+                cart.products = []
+                await cart.save()
+            }
+            res.send({ codsuccess: true, cod: true });
         }
     } catch (error) {
         console.log(error.message);
@@ -256,9 +272,18 @@ const viewOrder = async ( req , res ) => {
 
 const cancelOrder = async ( req , res ) => {
     try {
+        const userId = req.session.user_id
         const { id } = req.query
-        await Order.findByIdAndUpdate(id , { $set : { status : "Cancelled" , 'products.$[].status': "Cancelled"}})
+        const orderCheck = await Order.findOne({_id : id})
         const order = await Order.findById(id).populate('products.productId')
+        if(orderCheck.paymentStatus == "Paid"){
+            await Promise.all([
+                User.updateOne({ _id : userId } , { $inc : { wallet : orderCheck.amount }}) ,
+                Order.updateOne({ _id : id } , { $set : { status : "Cancelled" , 'products.$[].status': "Cancelled" , paymentStatus : "Refunded" ,'products.$[].paymentStatus' : "Refunded" }})
+            ])
+        } else {
+            await Order.updateOne({ _id : id } , { $set : { status : "Cancelled" , 'products.$[].status': "Cancelled"}} )
+        }
         for(orderProduct of order.products){
             const product = await Product.findById(orderProduct.productId)
             product.stock += orderProduct.quantity
@@ -289,19 +314,21 @@ const cancelOrderItem = async (req, res) => {
 
         await Order.findOneAndUpdate(
             { _id: orderId, "products._id": itemId },
-            { $set: { "products.$.status": "Cancelled" }}
+            { $set: { "products.$.status": "Cancelled" , "products.$.paymentStatus" : "Refunded" }}
         );
 
-        const order = await Order.findById(orderId).populate('products.productId');
+        const order = await Order.findById({_id : orderId}).populate('products');
 
         console.log('order:', order);
 
         const allItemsCancelled = order.products.every(product => product.status === 'Cancelled');
-
+        console.log(allItemsCancelled);
         if (allItemsCancelled) {
-            await Order.findByIdAndUpdate(orderId, { $set: { status: 'Cancelled' }});
+            console.log(orderId);
+            const a = await Order.findOneAndUpdate( { _id : orderId } , { $set: { status: 'Cancelled' , paymentStatus : "Refunded"}});
+            console.log(a);
         }
-        
+        console.log("Nihala");
         res.status(200).json({ message: 'Item successfully cancelled' });
     } catch (error) {
         console.log(error.message);
