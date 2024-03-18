@@ -11,9 +11,9 @@ const getAddCoupon = async ( req , res ) => {
 const addCoupon = async ( req , res ) => {
     try {
         const { code , des , discount , amount , date } = req.body
-        code.trim()
+        const trimmedCode = code.trim(); 
 
-        const existingCoupon = await Coupon.findOne({ couponCode: code })
+        const existingCoupon = await Coupon.findOne({ couponCode: trimmedCode })
 
         const expiryDate = new Date(date)
         const currDate = new Date()
@@ -26,7 +26,7 @@ const addCoupon = async ( req , res ) => {
             errors.code = "Coupon already in use."
         }
 
-        if(!/^[a-zA-Z\d\s]*[a-zA-Z\d][a-zA-Z\d\s]*$/.test(code)){
+        if(!/^[a-zA-Z\d]+$/.test(trimmedCode)){
             isValid = false
             errors.code = "Coupon code should only contain letters and digits."
         }
@@ -55,7 +55,7 @@ const addCoupon = async ( req , res ) => {
             res.render('addCoupon' , {errors})
             return
         }
-        const upCode = code.toUpperCase()
+        const upCode = trimmedCode.toUpperCase()
         const coupon = new Coupon ({
             couponCode : upCode ,
             description : des , 
@@ -77,7 +77,7 @@ const viewCoupon = async ( req , res ) => {
             page = parseInt(req.query.page , 10 )
         }
 
-        const limit = 3
+        const limit = 10
 
         const  couponData = await Coupon.find({  status : "Active" })
         .limit(limit * 1)

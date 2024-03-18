@@ -1,4 +1,8 @@
-<%- include('../layouts/header.ejs') %>
+<% if ( user ) { %> 
+    <%- include('../layouts/header.ejs') %>
+<% } else { %>
+    <%- include('../layouts/homeHeader.ejs') %>
+<% } %>
 <style>
     .hidden-button {
         border: none;
@@ -6,6 +10,16 @@
     }
 </style>
 <section class="p-4">
+    <div class="row justify-content-end mb-3">
+        <div class="col-md-auto">
+            <select id="sortBy" onchange="sortProducts(this.value)" class="form-select">
+                <option value="">Sort by price</option>
+                <option value="priceAsc">Low to High</option>
+                <option value="priceDesc">High to Low</option>
+            </select>
+            
+        </div>
+    </div>
     <div class="container">
         <div class="row">
             <% products.forEach((product) => { %>
@@ -15,9 +29,11 @@
                     <img src="/uploads/<%= product.images[0] %>" alt="catimg" height="300px" width="250px" class="card-img-top zoomable-image">
                     <div class="d-flex justify-content-end position-absolute" style="top: 0; right: 0;">
                     
-                        <input type="hidden" id="productId" name="productId" value="<%= product._id %>">
-                        <button type="button" id="addToWishlistButton" class="hidden-button"><i class="fas fa-heart" style="color: rgb(191, 197, 197);"></i></button>
-                    
+                        <% if (JSON.stringify(wishId).includes(product._id)){ %>
+                            <button type="button" onclick="addToWishlist('<%= product._id %>', event)" class="hidden-button"><i class="fas fa-heart" style="color: rgb(244, 27, 27);"></i></button>
+                        <% } else { %> 
+                            <button type="button" onclick="addToWishlist('<%= product._id %>', event)" class="hidden-button"><i class="fas fa-heart" style="color: rgb(191, 197, 197);"></i></button>
+                        <% } %>
                 </div>
                     <div class="card-body">
                         <h5><%= product.name %></h5>
@@ -52,11 +68,15 @@
     </div>
 </section>
 <script>
-    document.getElementById('addToWishlistButton').addEventListener("click" , function ( event ) {
-        event.preventDefault()
-        
-        const productId = document.getElementById('productId').value
+    function sortProducts(sortOption) {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('sort', sortOption);
+    window.location.href = currentUrl.toString();
+}
 
+    function addToWishlist(productId , event){
+        event.preventDefault()
+        const addButton = event.target;
         fetch ('/addToWishlist' , {
             method : 'POST' ,
             headers: {
@@ -67,12 +87,14 @@
         .then(response => response.json())
         .then(data => {
             if(data.success){
-                swal("Product added to wishlist")
+                swal( "" , "Product added to wishlist." , "success")
+                addButton.style.color = 'red';
             } else {
-                swal("Product already in wishlist.")
+                swal( "" , "Product already in wishlist." , "error")
             }
         })
         .catch(error => swal(error))
-    })
+    }
+    
 </script>
 <%- include('../layouts/footer.ejs') %>

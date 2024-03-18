@@ -81,7 +81,7 @@ const viewProduct = async ( req , res ) => {
             page = parseInt(req.query.page , 10 )
         }
 
-        const limit = 3
+        const limit = 10
 
         const productData = await product.find({ isDeleted : false ,
             $or : [

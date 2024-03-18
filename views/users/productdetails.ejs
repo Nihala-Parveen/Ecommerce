@@ -22,6 +22,9 @@
             <link rel="stylesheet" href="/css/nice-select.css">
             <link rel="stylesheet" href="/css/style.css">
             <link rel="stylesheet" href="/css/prodet.css">
+
+            <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> 
+            
    </head>
 
    <body>
@@ -59,12 +62,18 @@
                                 <div class="main-menu f-right d-none d-lg-block">
                                     <nav>                                                
                                         <ul id="navigation">                                                                                                                                     
-                                            <li><a href="/productlist">Home</a></li>
-                                            <li><a href="#">Account</a>
+                                            <li><a href="/home">Home</a></li>
+                                            <li><a href="/productlist">Shop</a></li>
+                                            <% if ( user ) { %>
+                                              <li><a href="#">Account</a>
                                                 <ul class="submenu">
                                                     <li><a href="/profile">My account</a></li>
+                                                    <li><a href="/orders">My Orders</a></li>
+                                                    <li><a href="/viewCoupons">My Coupons</a></li>
                                                     <li><a href="/logout">Logout</a></li>
-                                                </ul></li>
+                                                </ul>
+                                            </li>
+                                            <% } %>
                                         </ul>
                                     </nav>
                                 </div>
@@ -175,11 +184,11 @@
           <!-- <input type = "number" min = "0" value = "1"> -->
           <form action="/addtocart" method="POST">
             <input type="hidden" name="productId" value="<%= products._id %>">
-            <button type = "submit" class = "btn">
+            <button type = "submit" class = "btn ">
               Add to Cart <i class = "fas fa-shopping-cart"></i>
             </button>
           </form>
-          
+          <button type = "button" onclick="addToWishlist('<%= products._id %>')" class = "btn">Add to wishlist <i class = "fas fa-heart"></i></button>
         </div>
   
         
@@ -187,5 +196,25 @@
     </div>
   </div>
 </div>
-
+<script>
+  function addToWishlist(productId){
+        fetch ('/addToWishlist' , {
+            method : 'POST' ,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify({ productId: productId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                swal( "" , "Product added to wishlist." , "success")
+            } else {
+                swal( "" , "Product already in wishlist." , "error")
+            }
+        })
+        .catch(error => swal(error))
+    }
+    
+</script>
 <%- include('../layouts/footer.ejs') %>

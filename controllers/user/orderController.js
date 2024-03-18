@@ -88,8 +88,7 @@ const postOrder = async (req, res) => {
         }
 
         if (errorMessages.length > 0) {
-            console.log(errorMessages);
-            return res.render('checkout', { carts: cart, users: userData, errorMessages });
+            return res.send({ outOfStock : true, message : errorMessages });   
         }
 
         const order = new Order({
@@ -144,7 +143,7 @@ const postOrder = async (req, res) => {
             })
         } else {
             await Promise.all([
-                Order.updateOne({ _id: orderData._id }, { $set: { payment : "Wallet Payment" , status : "Placed" , paymentStatus : "Paid" } }) ,
+                Order.updateOne({ _id: orderData._id }, { $set: { payment : "Wallet Payment" , status : "Placed" , paymentStatus : "Paid" , 'products.$[].status': "Placed" } }) ,
                 User.updateOne({ _id : userId } , { $inc : { wallet : -amount }})
             ])
             for (const ordrProduct of orderProducts) {

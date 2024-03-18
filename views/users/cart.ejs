@@ -158,90 +158,91 @@
                           <span class="btn_1 disabled">Proceed to checkout</span>
                           <% } %>
           </div>
+          
         </div>
       </div>
   </section>
   <script>
     const increaseQuantity = async (productId) => {
-        try {
-          const quantityInput = document.getElementById(`quantityInput_${productId}`);
+      try {
+        const quantityInput = document.getElementById(`quantityInput_${productId}`);
         const currentQuantity = parseInt(quantityInput.value);
         const maxStock = parseInt(quantityInput.max);
         const maxStockError = document.getElementById(`maxStockError_${productId}`);
         if (currentQuantity >= maxStock) {
           maxStockError.style.display = 'inline'
-            return;
+          return;
         }
         maxStockError.style.display = 'none';
         quantityInput.value = currentQuantity + 1;
         updateTotals(productId, currentQuantity + 1);
-            const response = await fetch('/editquantity', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: productId,
-                    action: 'increase'
-                })
-            });
-            if (!response.ok) {
-                throw new Error('Failed to increase quantity');
-            }
-        } catch (error) {
-            console.error(error.message);
+        const response = await fetch('/editquantity', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: productId,
+            action: 'increase'
+          })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to increase quantity');
         }
+      } catch (error) {
+        console.error(error.message);
+      }
     };
 
     const decreaseQuantity = async (productId) => {
-        try {
-          const quantityInput = document.getElementById(`quantityInput_${productId}`);
+      try {
+        const quantityInput = document.getElementById(`quantityInput_${productId}`);
         const currentQuantity = parseInt(quantityInput.value);
 
         if (currentQuantity <= 1) {
-            // Minimum quantity reached
-            return;
+          // Minimum quantity reached
+          return;
         }
 
         // Update UI immediately
         quantityInput.value = currentQuantity - 1;
         updateTotals(productId, currentQuantity - 1);
-            const response = await fetch('/editquantity', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: productId,
-                    action: 'decrease'
-                })
-            });
-            if (!response.ok) {
-                throw new Error('Failed to decrease quantity');
-            }
-        } catch (error) {
-            console.error(error.message);
+        const response = await fetch('/editquantity', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: productId,
+            action: 'decrease'
+          })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to decrease quantity');
         }
+      } catch (error) {
+        console.error(error.message);
+      }
     };
     const updateTotals = (productId, newQuantity) => {
-    const quantityInput = document.getElementById(`quantityInput_${productId}`);
-    const price = parseFloat(quantityInput.dataset.price); 
-    const totalElement = document.getElementById(`total_${productId}`);
-    const subtotalElement = document.getElementById('subtotal');
+      const quantityInput = document.getElementById(`quantityInput_${productId}`);
+      const price = parseFloat(quantityInput.dataset.price);
+      const totalElement = document.getElementById(`total_${productId}`);
+      const subtotalElement = document.getElementById('subtotal');
 
-    // Update total for the specific product
-    const total = price * newQuantity;
-    totalElement.textContent = `₹${total}`;
+      // Update total for the specific product
+      const total = price * newQuantity;
+      totalElement.textContent = `₹${total}`;
 
-    // Update subtotal
-    const allTotalElements = document.querySelectorAll('[id^="total_"]');
-    let subtotal = 0;
-    allTotalElements.forEach((element) => {
+      // Update subtotal
+      const allTotalElements = document.querySelectorAll('[id^="total_"]');
+      let subtotal = 0;
+      allTotalElements.forEach((element) => {
         subtotal += parseFloat(element.textContent.replace('₹', ''));
-    });
-    subtotalElement.textContent = `₹${subtotal}`;
-};
-</script>
+      });
+      subtotalElement.textContent = `₹${subtotal}`;
+    };
+  </script>
 
 
 

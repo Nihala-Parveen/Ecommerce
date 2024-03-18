@@ -128,27 +128,12 @@
 
                 <input type="hidden" name="products" value="<%= JSON.stringify(carts.products) %>">
                 <input type="hidden" name="amount" value="<%= subtotal %>">
-
+      
                 <button type="submit" class="genric-btn success-border form-control" id="vp">Confirm Order</button>
-                <% if (errorMessages && errorMessages.length> 0) { %>
-                  <ul>
-                    <% errorMessages.forEach((message)=> { %>
-                      <% console.log(message) %>
-                        <li>
-                          <h1>
-                            <%= message %>
-                          </h1>
-                        </li>
-                        <% }) %>
-                  </ul>
-                  <% } %>
-
                     <% } else { %>
                       <p class="pl-5 pt-5 text-danger">Products Out of stock</p>
                       <% } %>
             </div>
-            <span id="maxStock" class="text-danger" style="display: none;">Some products are out of stock or the
-              quantity exceeds available stock.</span>
           </div>
           </form>
         </div>
@@ -226,7 +211,6 @@
 
       const products = JSON.parse(document.querySelector('input[name="products"]').value);
       let allProductsInStock = true;
-      const maxStockError = document.getElementById('maxStock')
       products.forEach(product => {
         if (product.productId.stock < product.quantity) {
           allProductsInStock = false;
@@ -235,8 +219,7 @@
       });
 
       if (!allProductsInStock) {
-        maxStockError.style.display = 'inline'
-        alert("Some products are out of stock or the quantity exceeds available stock.");
+        swal("","Some products are out of stock or the quantity exceeds available stock." , "error");
         return;
       }
 
@@ -246,6 +229,12 @@
       })
         .then(response => response.json())
         .then(data => {
+          if (data.outOfStock) {
+            if (data.message) {
+              swal("", data.message.join("\n"), "error");
+              return;
+            }
+          }
           if (data.codsuccess && data.cod) {
             location.href = "/orderSuccess";
           } else {
