@@ -9,6 +9,9 @@
           </nav>
       <div class="cart_inner">
         <div class="table-responsive">
+          <% if (wishlistData.wishlist.length === 0) { %>
+            <img src="/img/wishlist.jpg" alt="">
+          <% } else { %>
           <table class="table">
             <thead>
               <tr>
@@ -38,6 +41,7 @@
               <% }) %>
             </tbody>
           </table>
+          <% } %>
         </div>
       </div>
   </section>

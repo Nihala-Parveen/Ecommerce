@@ -1,5 +1,6 @@
 const Order = require('../../models/orderModel')
 const User = require('../../models/userModel')
+const Product = require('../../models/productModel')
 
 const viewOrder = async ( req , res ) => {
     try {
@@ -70,7 +71,7 @@ const changeStatus = async ( req , res ) => {
     try {
         const id = req.query.id
         const newStatus = req.body.status
-        const order =  await Order.findByIdAndUpdate( id , {$set : { status : newStatus , paymentStatus : "Refunded" }})
+        const order =  await Order.findByIdAndUpdate( id , {$set : { status : newStatus }})
 
         order.products.forEach((product) => {
             if(product.status !== "Cancelled") {
@@ -79,14 +80,22 @@ const changeStatus = async ( req , res ) => {
         })
         await order.save()
 
-        if (order.payment === 'COD' && newStatus === 'Delivered') {
-            await Order.findByIdAndUpdate(id, { $set: { paymentStatus: 'Paid' } });
+        if (order.payment === 'Cash on Delivery' && newStatus === 'Delivered') {
+            order.paymentStatus = "Paid"
+            order.save()
         } 
         
         const user = order.user
         
-        await User.findOneAndUpdate({ _id : user } , { $inc : { wallet : order.amount }})
-        
+        if ( newStatus === "Returned") {
+            await User.findOneAndUpdate({ _id : user } , { $inc : { wallet : order.amount }})
+            order.paymentStatus = "Refunded"
+            await order.save()
+            order.products.forEach(async (item) => {
+                await Product.updateOne({ _id : item.productId } , { $inc : { stock : item.quantity }})
+            })
+        }
+
         res.redirect('/view-orders')
     } catch (error) {
         console.log(error.message);

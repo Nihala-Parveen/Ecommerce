@@ -50,7 +50,7 @@
                             <td><%= product.status %></td>
                             <% if (!( product.status === "Cancelled" || product.status === "Delivered")) { %>
                                 <td class="text-danger">
-                                    <a href="#" onclick="showCancelConfirmationModal('<%= orders._id %>', '<%= product._id %>')" class="text-danger">Cancel Order</a>
+                                    <button class="btn-dark mt-5 productCancelBtn" data-prodId="<%= product._id %>" data-orderId="<%= orders._id %>">Cancel product</button>
                                 </td>
                             <% } else if(product.status === "Delivered") { %>
                                 <td class="text-danger">
@@ -71,64 +71,56 @@
     
 </div>
 </section>
-<!-- Confirmation Modal for Order Cancellation -->
-<div class="modal fade" id="cancelConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="cancelConfirmationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cancelConfirmationModalLabel">Confirm Order Cancellation</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to cancel this order?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="genric-btn success-border" data-dismiss="modal">Cancel</button>
-                <button type="button" class="genric-btn danger-border" id="cancelConfirmBtn">Cancel Order</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <script>
-    function showCancelConfirmationModal(orderId, productId) {
-        
-        $('#cancelConfirmationModal').modal('show');
-        console.log('orderIdejs:', orderId);
-console.log('productIdejs:', productId);
-    
-        document.getElementById('cancelConfirmBtn').onclick = async function () {
-            try {
-                const response = await fetch(`/cancelProduct?orderId=${orderId}&itemId=${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-    
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-    
-                const data = await response.json();
-    
-                window.location.href = '/vieworder';
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        };
-    }
+    const productCancelBtns = document.querySelectorAll('.productCancelBtn')
+    productCancelBtns.forEach((btn) => {
+        btn.addEventListener('click', cancelProductOrderFn)
+    })
 
-    function downloadInvoice(orderId) {
-      const url = `http://localhost:3000/invoice?id=${orderId}`;
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "invoice.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    async function cancelProductOrderFn() {
+        try {
+            const productId = this.getAttribute('data-prodId')
+            const orderId = this.getAttribute('data-orderId')
+            Swal.fire({
+                title: "Are you sure you want to cancel this order?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Cancel Order !"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+
+                    const response = await fetch(`/cancelProduct`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId, orderId }),
+                    })
+
+                    const data = await response.json();
+                    if (data.message) {
+                        window.location.href = `/vieworder?id=${orderId}`;
+                    }
+
+                }
+            });
+        } catch (error) {
+            console.log(error.message);
+        }
     }
-    </script>
+    function downloadInvoice(orderId) {
+        const url = `http://localhost:3000/invoice?id=${orderId}`;
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "invoice.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
 <%- include('../layouts/footer.ejs') %>

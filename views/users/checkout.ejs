@@ -99,7 +99,7 @@
                 
                 <div class="payment_item">
                   <div class="radion_btn">
-                    <input type="radio" id="f-option5" name="payment" value="COD" required/>
+                    <input type="radio" id="f-option5" name="payment" value="COD"/>
                     <label for="f-option5">Cash on Delivery</label>
                     <span id="cod-message" class="text-danger" style="display: none;">Cash on Delivery is not applicable for orders above Rs 1000.</span>
 
@@ -110,7 +110,7 @@
 
                 <div class="payment_item active">
                   <div class="radion_btn">
-                    <input type="radio" id="f-option6" name="payment" value="onlinePayment" required/>
+                    <input type="radio" id="f-option6" name="payment" value="onlinePayment"/>
                     <label for="f-option6">Online Payment </label>
                     <div class="check"></div>
                   </div>
@@ -119,7 +119,7 @@
                 <% if ( users.wallet >= subtotal ) { %> 
                   <div class="payment_item active">
                     <div class="radion_btn">
-                      <input type="radio" id="f-option7" name="payment" value="Wallet" required/>
+                      <input type="radio" id="f-option7" name="payment" value="Wallet"/>
                       <label for="f-option7">Wallet Payment </label>
                       <div class="check"></div>
                     </div>
@@ -208,6 +208,18 @@
       event.preventDefault();
 
       const formData = new URLSearchParams(new FormData(event.target))
+
+      var selectedAddress = document.querySelector('input[name="address"]:checked');
+      if (!selectedAddress) {
+        swal("","Please add an address.", "error")
+        return;
+      }
+
+      var selectedPayment = document.querySelector('input[name="payment"]:checked');
+      if (!selectedPayment) {
+        swal("","Please select payment type.", "error")
+        return;
+      }
 
       const products = JSON.parse(document.querySelector('input[name="products"]').value);
       let allProductsInStock = true;

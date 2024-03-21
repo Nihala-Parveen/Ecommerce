@@ -9,6 +9,9 @@
         </ol>
       </nav>
       <div class="cart_inner">
+        <% if (!(carts && carts.products && carts.products.length> 0)) { %>
+          <img src="/img/empty_cart.jpg" alt="">
+          <% } else { %>
         <div class="table-responsive">
           <table class="table">
             <thead>
@@ -158,8 +161,8 @@
                           <span class="btn_1 disabled">Proceed to checkout</span>
                           <% } %>
           </div>
-          
         </div>
+        <% } %>
       </div>
   </section>
   <script>

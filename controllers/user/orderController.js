@@ -306,28 +306,38 @@ const returnOrder = async ( req , res ) => {
 
 const cancelOrderItem = async (req, res) => {
     try {
-        const { orderId, itemId } = req.query;
+        const userId = req.session.user_id
+        const { productId, orderId } = req.body;
 
-        console.log('orderId:', orderId);
-        console.log('itemId:', itemId);
-
-        await Order.findOneAndUpdate(
-            { _id: orderId, "products._id": itemId },
-            { $set: { "products.$.status": "Cancelled" , "products.$.paymentStatus" : "Refunded" }}
+        const order = await Order.findOneAndUpdate(
+            { _id: orderId, "products._id": productId },
+            { $set: { "products.$.status": "Cancelled" }} ,
+            { new: true }
         );
 
-        const order = await Order.findById({_id : orderId}).populate('products');
+        const cancelledProduct = order.products.find(product => product._id.toString() === productId);
+        const newAmount = order.amount - (cancelledProduct.price * cancelledProduct.quantity);
+        if ( order.paymentStatus === "Paid") {
+            await Promise.all([
+                User.updateOne({ _id : userId } , { $inc : { wallet : cancelledProduct.price * cancelledProduct.quantity }}) ,
+                Order.updateOne({ _id : orderId , "products._id": productId } , { $set : { 'products.$.paymentStatus' : "Refunded" }})
+            ])
+        }
 
-        console.log('order:', order);
+        const updateStock = await Product.findById(cancelledProduct.productId)
+        updateStock.stock += cancelledProduct.quantity
+        updateStock.save()
 
         const allItemsCancelled = order.products.every(product => product.status === 'Cancelled');
-        console.log(allItemsCancelled);
         if (allItemsCancelled) {
-            console.log(orderId);
-            const a = await Order.findOneAndUpdate( { _id : orderId } , { $set: { status: 'Cancelled' , paymentStatus : "Refunded"}});
-            console.log(a);
+            if ( order.paymentStatus === "Paid") {
+                await Order.findOneAndUpdate( { _id : orderId } , { $set: { status: 'Cancelled' , paymentStatus : "Refunded" }} , { new: true });
+            } else {
+                await Order.findOneAndUpdate( { _id : orderId } , { $set: { status: 'Cancelled' }} , { new: true });
+            }
+        } else {
+            await Order.findOneAndUpdate({ _id: orderId }, { $set: { amount: newAmount } }, { new: true });
         }
-        console.log("Nihala");
         res.status(200).json({ message: 'Item successfully cancelled' });
     } catch (error) {
         console.log(error.message);
