@@ -75,4 +75,4 @@ app.use('/' , adminOrder )
 const adminCoupon = require('./routes/admin/coupon')
 app.use('/', adminCoupon )
 
-app.listen (3001 , () => console.log("Server started at port 3001"))
+app.listen (3000 , () => console.log("Server started at port 3000"))
