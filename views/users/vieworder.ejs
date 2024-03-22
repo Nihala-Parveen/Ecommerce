@@ -48,13 +48,13 @@
                             <td><%= product.quantity %></td>
                             <td><%= product.price * product.quantity %></td>
                             <td><%= product.status %></td>
-                            <% if (!( product.status === "Cancelled" || product.status === "Delivered")) { %>
+                            <% if (!( product.status === "Cancelled" || product.status === "Delivered" || product.status === "Return Requested" || product.status === "Returned")) { %>
                                 <td class="text-danger">
-                                    <button class="btn-dark mt-5 productCancelBtn" data-prodId="<%= product._id %>" data-orderId="<%= orders._id %>">Cancel product</button>
+                                    <button class="genric-btn danger productCancelBtn" data-prodId="<%= product._id %>" data-orderId="<%= orders._id %>">CANCEL PRODUCT</button>
                                 </td>
                             <% } else if(product.status === "Delivered") { %>
                                 <td class="text-danger">
-                                    <a href="#"  class="text-danger h6">Return Order</a>
+                                    <button class="genric-btn danger productReturnBtn" data-RprodId="<%= product._id %>" data-RorderId="<%= orders._id %>">RETURN PRODUCT</button>
                                 </td>
                             <% } %>
                         </tr>
@@ -113,6 +113,47 @@
             console.log(error.message);
         }
     }
+
+    const productReturnBtns = document.querySelectorAll('.productReturnBtn')
+    productReturnBtns.forEach((btn) => {
+        btn.addEventListener('click', returnProductOrderFn)
+    })
+
+    async function returnProductOrderFn() {
+        try {
+            const RproductId = this.getAttribute('data-RprodId')
+            const RorderId = this.getAttribute('data-RorderId')
+            Swal.fire({
+                title: "Are you sure you want to return this order?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Return Order !"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+
+                    const response = await fetch(`/returnProduct`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ RproductId, RorderId }),
+                    })
+
+                    const data = await response.json();
+                    if (data.message) {
+                        window.location.href = `/vieworder?id=${RorderId}`;
+                    }
+
+                }
+            });
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     function downloadInvoice(orderId) {
         const url = `http://localhost:3000/invoice?id=${orderId}`;
         const link = document.createElement("a");

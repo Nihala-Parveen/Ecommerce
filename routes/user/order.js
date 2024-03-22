@@ -17,6 +17,7 @@ orderRoute.get('/vieworder' , ordercontroller.viewOrder )
 orderRoute.post('/cancelOrder' , ordercontroller.cancelOrder )
 orderRoute.post('/returnOrder' , ordercontroller.returnOrder )
 orderRoute.post('/cancelProduct' , ordercontroller.cancelOrderItem )
+orderRoute.post('/returnProduct' , ordercontroller.returnProductOrder )
 orderRoute.get('/invoice' , ordercontroller.downloadInvoice )
 
 module.exports = orderRoute

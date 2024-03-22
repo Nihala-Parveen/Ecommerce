@@ -345,6 +345,20 @@ const cancelOrderItem = async (req, res) => {
     }
 }
 
+const returnProductOrder = async ( req , res ) => {
+    try {
+        const { RproductId, RorderId } = req.body
+        await Order.findOneAndUpdate(
+            { _id: RorderId , "products._id": RproductId },
+            { $set: { "products.$.status": "Return Requested" }} ,
+            { new: true }
+        );
+        res.status(200).json({ message: 'Item successfully returned' });
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 function createInvoice(invoice) {
     return new Promise((resolve, reject) => {
         let doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -548,5 +562,6 @@ module.exports = {
     continuePayment ,
     verifyPayment ,
     cancelOrderItem ,
+    returnProductOrder ,
     downloadInvoice
 }

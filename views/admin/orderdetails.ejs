@@ -59,6 +59,9 @@
                             <th>Product Name</th> 
                             <th>Quantity</th> 
                             <th>Price</th>
+                            <th>Status</th>
+                            <th>Payment Status</th>
+                            <th></th>
                         </tr> 
                     </thead> 
                     <tbody>
@@ -69,6 +72,13 @@
                             <td><%= product.productId.name %></td> 
                             <td><%= product.quantity %></td>
                             <td><%= product.price * product.quantity %></td>
+                            <td><%= product.status %></td>
+                            <td><%= product.paymentStatus %></td>
+                            <td>
+                                <% if (!(product.status === "Delivered" || product.status === "Cancelled" || product.status === "Returned" )) { %>
+                                    <a href="/changeProductstatus?id=<%= orders._id %>&productId=<%= product._id %>" class="text-success padding-5" style="color: green;"><i class="fa fa-pencil-square"></i></a> 
+                                <% } %>
+                            </td>
                         </tr> 
                         <% }) %>
                     </tbody> 

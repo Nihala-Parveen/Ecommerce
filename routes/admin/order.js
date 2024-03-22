@@ -10,5 +10,7 @@ order_Route.get('/view-orders' , auth.isLogin , orderController.viewOrder )
 order_Route.get('/order-details' , orderController.orderDetails )
 order_Route.get('/changestatus' , orderController.changeStatusLoad )
 order_Route.post('/changestatus' , orderController.changeStatus )
+order_Route.get('/changeProductstatus' , orderController.getChangeProductStatus )
+order_Route.post('/changeProductstatus' , orderController.changeProductStatus )
 
 module.exports = order_Route

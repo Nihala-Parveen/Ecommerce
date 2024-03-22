@@ -38,8 +38,9 @@
                             <td><%= order.status %></td>
                             <td><a href="/order-details?id=<%= order._id %>" class="padding-5"><i class="fa fa-eye"></i></a>
                                 <% if (!(order.status === "Delivered" || order.status === "Cancelled" || order.status === "Returned" )) { %>
-                                    <a href="/changestatus?id=<%= order._id %>" class="text-success padding-5" style="color: green;"><i class="fa fa-pencil-square"></i></a></td> 
+                                    <a href="/changestatus?id=<%= order._id %>" class="text-success padding-5" style="color: green;"><i class="fa fa-pencil-square"></i></a> 
                                 <% } %>
+                            </td>
                         </tr> 
                         <% }) %>
                     </tbody> 

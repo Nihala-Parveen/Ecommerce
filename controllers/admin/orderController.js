@@ -102,9 +102,66 @@ const changeStatus = async ( req , res ) => {
     }
 }
 
+const getChangeProductStatus = async ( req , res ) => {
+    try {
+        const { id , productId } = req.query
+        const orderData = await Order.findOne({_id:id , "products._id" : productId })
+        if(orderData){
+            res.render('changeProductstatus' , { order : orderData })
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const changeProductStatus = async ( req , res ) => {
+    try {
+        const { id , productId , status } = req.body
+        const order =  await Order.findOneAndUpdate(
+            { _id : id , "products._id": productId } ,
+            { $set : { "products.$.status": status }} ,
+            { new : true }
+        )
+
+        const allItemsChanged = order.products.every(product => product.status === status )
+        if(allItemsChanged){
+            if ( order.payment === 'Cash on Delivery' && status === "Delivered" ) {
+                await Order.findOneAndUpdate( { _id : id } , { $set: { status: status , paymentStatus : "Paid" }} , { new: true });
+            } else {
+                await Order.findOneAndUpdate({ _id : id } , { $set : { status : status }} , { new : true })
+            }
+        }
+
+        if (order.payment === 'Cash on Delivery' && status === 'Delivered') {
+            order.products.paymentStatus = "Paid"
+            order.save()
+        } 
+        
+        const user = order.user
+        
+        if ( status === "Returned") {
+            await Promise.all(order.products.map(async (item) => {
+                if (item._id.toString() === productId && item.status === 'Returned') {
+                    const refundAmount = item.price * item.quantity; // Refund amount for the returned product
+                    await Product.updateOne({ _id: item.productId }, { $inc: { stock: item.quantity } });
+                    await User.findOneAndUpdate({ _id: user }, { $inc: { wallet: refundAmount } });
+                    item.paymentStatus = "Refunded";
+                }
+            }));
+            await order.save();
+        }
+
+        res.redirect(`/order-details?id=${order._id}`)
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 module.exports = {
     viewOrder ,
     orderDetails ,
     changeStatusLoad ,
-    changeStatus
+    changeStatus ,
+    getChangeProductStatus ,
+    changeProductStatus
 }
