@@ -63,7 +63,7 @@ const sendResetVerify = async ( name , email , token ) => {
             from: process.env.SMTP_USER , // sender address
             to: email ,
             subject: "For Reset Password", // Subject line
-            html: '<p>Hii ' +name+ ', please click here to <a href="http://127.0.0.1:3000/resetPassword?token=' +token+'"> Reset </a> your password. </p>' // html body
+            html: '<p>Hii ' +name+ ', please click here to <a href="https://ecomnih.shop/resetPassword?token=' +token+'"> Reset </a> your password. </p>' // html body
         }
         console.log("Email link:", 'http://127.0.0.1:3000/resetPassword?token=' + token);
         transporter.sendMail(mailOptions)
