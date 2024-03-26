@@ -9,12 +9,12 @@
                 </ol>
             </nav>
             
-            <% couponData.forEach ((coupon)=> { %>
+            <% couponData.forEach ((coupon , index )=> { %>
                 <div class="rounded shadow-sm p-3 mb-3" style="border: 1px solid #e1d9d9;">
                     <h3><%= coupon.description %></h3>
                     <div class="input-group">
-                        <input type="text" value="<%= coupon.couponCode %>" id="myInput" class="form-control">
-                        <button onclick="myFunction()" class="genric-btn primary-border"><i class="fa fa-solid fa-copy"></i></button>
+                        <input type="text" value="<%= coupon.couponCode %>" id="myInput" class="form-control myInput">
+                        <button onclick="myFunction('<%= index %>')" class="genric-btn primary-border"><i class="fa fa-solid fa-copy"></i></button>
                     </div>
                     
                     <p>
@@ -28,8 +28,8 @@
         </div>
     </section>
     <script>
-        function myFunction() {
-            var copyText = document.getElementById("myInput");
+        function myFunction(index) {
+            var copyText = document.querySelectorAll(".myInput")[index];
 
             copyText.select();
             copyText.setSelectionRange(0, 99999);
